@@ -303,30 +303,7 @@ export default function SamsungHomeScreen({
               </div>
             </div>
 
-            {/* Bottom Right: Mascot Nudge */}
-            <div className="absolute bottom-4 right-4 flex items-center gap-2">
-              <motion.div
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="bg-white border border-[#e2e6e7] rounded-[12px] px-3 py-2 shadow-md"
-              >
-                <p className="text-[11px] text-[#4A90E2] font-semibold">Log today's mood?</p>
-              </motion.div>
-              <motion.div
-                animate={{
-                  y: [0, -4, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A8D5BA] to-[#4A90E2] flex items-center justify-center text-[16px] shadow-md"
-              >
-                🌸
-              </motion.div>
-            </div>
+            {/* Mascot nudge removed */}
           </motion.div>
         );
 
