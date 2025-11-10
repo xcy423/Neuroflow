@@ -215,7 +215,7 @@ export default function SamsungHomeScreen({
               </motion.div>
 
               {/* Center: Streak Info + Day Circles */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4" style={{ marginRight: "-4px" }}>
                 {/* Streak Number and Title */}
                 <div>
                   <div className="flex items-baseline gap-2">
