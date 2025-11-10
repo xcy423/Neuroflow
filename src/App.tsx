@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Toaster } from "./components/ui/sonner";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import SamsungHomeScreen from "./components/SamsungHomeScreen";
+import type { Widget } from "./components/SamsungHomeScreen";
 import EnhancedCoursesScreen from "./components/EnhancedCoursesScreen";
 import EnhancedChallengesScreen from "./components/EnhancedChallengesScreen";
 import SanctuaryScreen from "./components/SanctuaryScreen";
@@ -22,20 +23,12 @@ type Screen =
   | "sanctuary"
   | "profile"
   | "widgetDetail";
-type WidgetType =
-  | "steps"
-  | "sleep"
-  | "hrv"
-  | "streak"
-  | "bloodOxygen"
-  | "moodTrends"
-  | "wellnessScore";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] =
     useState<Screen>("home");
   const [selectedWidget, setSelectedWidget] =
-    useState<WidgetType | null>(null);
+    useState<Widget["type"] | null>(null);
   const [showMoodModal, setShowMoodModal] = useState(false);
   const [showWidgetCustomizer, setShowWidgetCustomizer] =
     useState(false);
@@ -49,32 +42,36 @@ export default function App() {
     showPlusButton: true,
   });
 
-  const [widgets, setWidgets] = useState([
+  const [widgets, setWidgets] = useState<Widget[]>([
     {
       id: "streak",
       name: "Daily Goal",
       enabled: true,
       order: 0,
+      type: "streak",
     },
-    { id: "steps", name: "Steps", enabled: true, order: 1 },
+    { id: "steps", name: "Steps", enabled: true, order: 1, type: "steps" },
     {
       id: "sleep",
       name: "Sleep Score",
       enabled: true,
       order: 2,
+      type: "sleep",
     },
-    { id: "hrv", name: "HRV", enabled: true, order: 3 },
+    { id: "hrv", name: "HRV", enabled: true, order: 3, type: "hrv" },
     {
       id: "wellnessScore",
       name: "Wellness Score",
       enabled: false,
       order: 4,
+      type: "wellnessScore",
     },
     {
       id: "moodTrends",
       name: "Mood Trends",
       enabled: false,
       order: 5,
+      type: "moodTrends",
     },
   ]);
 
@@ -133,8 +130,9 @@ export default function App() {
     setSelectedWidget(null);
   };
 
-  const handleWidgetClick = (widgetId: WidgetType) => {
-    setSelectedWidget(widgetId);
+  const handleWidgetClick = (widgetId: string) => {
+    // Accept string for SamsungHomeScreen compatibility
+  setSelectedWidget(widgetId as Widget["type"]);
     setCurrentScreen("widgetDetail");
   };
 
@@ -229,11 +227,17 @@ export default function App() {
     currentScreen !== "sanctuary" &&
     currentScreen !== "widgetDetail";
 
+  // compute extra bottom padding so scroll area extends past fixed overlays
+  // INCREASED values for more scroll room
+  const extraBottomBase = showBottomNav ? 420 : 240; // much more room for bottom nav
+  const extraBottomMascot = showMascot ? 180 : 0; // more space if mascot is visible
+  const paddingBottomValue = `calc(env(safe-area-inset-bottom, 0px) + ${extraBottomBase + extraBottomMascot}px)`;
+
   return (
     <div className="relative w-full min-h-screen bg-[#fcfcfc] flex items-center justify-center">
       {/* Main App Container - Responsive with iPhone Dynamic Island Support */}
       <div
-        className="relative w-full max-w-[440px] min-w-[320px] h-screen bg-[#fcfcfc] overflow-hidden mx-auto shadow-2xl"
+        className="relative w-full max-w-[440px] min-w-[320px] min-h-screen bg-[#fcfcfc] overflow-hidden mx-auto shadow-2xl"
         style={{
           // Support for iPhone Safe Areas and Dynamic Island
           paddingTop: "env(safe-area-inset-top, 0px)",
@@ -241,7 +245,14 @@ export default function App() {
         }}
       >
         {/* Main Content - Scrollable with proper insets */}
-        <div className="h-full w-full overflow-y-auto overflow-x-hidden">
+        <div
+          className="w-full min-h-screen overflow-y-auto overflow-x-hidden"
+          style={{
+            // ensure scrolling area extends past fixed bottom elements (bottom nav / mascot)
+            // computed so presence/absence of bottom nav/mascot is respected
+            paddingBottom: paddingBottomValue,
+          }}
+        >
           {renderScreen()}
         </div>
 

@@ -1,12 +1,7 @@
 import { useState } from "react";
+import type { Widget } from "./SamsungHomeScreen";
 import { X, GripVertical, Eye, EyeOff } from "lucide-react";
 
-interface Widget {
-  id: string;
-  name: string;
-  enabled: boolean;
-  order: number;
-}
 
 interface UserSettings {
   showMascot: boolean;
