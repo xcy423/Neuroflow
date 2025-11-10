@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-light-blue: #E8F4FD;
+    --color-green: #A8D5BA;
+    --color-dark-blue: #4A90E2;
+    --color-orange: #F5A623;
+    --color-dark-gray: #2C3E50;
+    --color-white: #FFFFFF;
+    
+    --radius: 0.5rem;
+  }
+  
+  /* iPhone Safe Area Support for Dynamic Island - Additional clearance */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    font-family: 'Inter', sans-serif;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, label {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  
+  h4 {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  
+  p {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+}
+
+@layer utilities {
+  .font-heading {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  @keyframes swipe-hint {
+    0%, 100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    50% {
+      transform: translateX(-10px);
+      opacity: 0.7;
+    }
+  }
+  
+  .animate-swipe-hint {
+    animation: swipe-hint 2s ease-in-out infinite;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(-1deg);
+    }
+    50% {
+      transform: rotate(1deg);
+    }
+  }
+
+  .animate-wiggle {
+    animation: wiggle 0.3s ease-in-out infinite;
+  }
+
+  /* Responsive utilities */
+  @media (max-width: 375px) {
+    /* iPhone SE and smaller */
+    .text-responsive-sm {
+      font-size: 0.875rem;
+    }
+    .p-responsive {
+      padding: 1rem;
+    }
+  }
+
+  @media (min-width: 376px) and (max-width: 414px) {
+    /* iPhone 12/13/14 standard */
+    .p-responsive {
+      padding: 1.25rem;
+    }
+  }
+
+  @media (min-width: 415px) {
+    /* iPhone Pro Max and larger */
+    .p-responsive {
+      padding: 1.5rem;
+    }
+  }
+
+  /* Prevent content overflow on all screen sizes */
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Active state for mobile */
+  .active\:scale-98:active {
+    transform: scale(0.98);
+  }
+
+  /* Smooth transitions for all interactive elements */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Remove any default margins that might cause spacing issues */
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ensure smooth scrolling with momentum */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+}
