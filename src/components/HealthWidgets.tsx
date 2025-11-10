@@ -59,7 +59,7 @@ const getWidgetIcon = (type: string) => {
 const CaloriesBarWidget: React.FC<{
   widget: WidgetData;
   onClick?: () => void;
-}> = ({ widget, onClick }) => {
+}> = ({ widget, onClick }: { widget: WidgetData; onClick?: () => void }) => {
   const Icon = getWidgetIcon(widget.type);
   const percentage = widget.target ? (widget.value / widget.target) * 100 : 0;
   
@@ -138,7 +138,7 @@ const CaloriesBarWidget: React.FC<{
 const CircularProgressWidget: React.FC<{
   widget: WidgetData;
   onClick?: () => void;
-}> = ({ widget, onClick }) => {
+}> = ({ widget, onClick }: { widget: WidgetData; onClick?: () => void }) => {
   const percentage = widget.target ? (widget.value / widget.target) * 100 : 0;
   const Icon = getWidgetIcon(widget.type);
   const isLarge = widget.size === 'large';
@@ -254,7 +254,7 @@ const CircularProgressWidget: React.FC<{
 const LineGraphWidget: React.FC<{
   widget: WidgetData;
   onClick?: () => void;
-}> = ({ widget, onClick }) => {
+}> = ({ widget, onClick }: { widget: WidgetData; onClick?: () => void }) => {
   const Icon = getWidgetIcon(widget.type);
   const trend = widget.trend || [];
   const isLarge = widget.size === 'large';
@@ -372,7 +372,7 @@ const LineGraphWidget: React.FC<{
 const MoodWidget: React.FC<{
   widget: WidgetData;
   onClick?: () => void;
-}> = ({ widget, onClick }) => {
+}> = ({ widget, onClick }: { widget: WidgetData; onClick?: () => void }) => {
   const Icon = getWidgetIcon(widget.type);
   const moodEmojis = ['😢', '😟', '😐', '🙂', '😊'];
   const moodLabels = ['Very Low', 'Low', 'Neutral', 'Good', 'Great'];
@@ -439,7 +439,7 @@ const MoodWidget: React.FC<{
 const SleepWidget: React.FC<{
   widget: WidgetData;
   onClick?: () => void;
-}> = ({ widget, onClick }) => {
+}> = ({ widget, onClick }: { widget: WidgetData; onClick?: () => void }) => {
   const Icon = getWidgetIcon(widget.type);
   const hours = Math.floor(widget.value);
   const minutes = Math.round((widget.value - hours) * 60);
@@ -533,7 +533,7 @@ const SleepWidget: React.FC<{
 const HydrationWidget: React.FC<{
   widget: WidgetData;
   onClick?: () => void;
-}> = ({ widget, onClick }) => {
+}> = ({ widget, onClick }: { widget: WidgetData; onClick?: () => void }) => {
   const Icon = getWidgetIcon(widget.type);
   const percentage = widget.target ? (widget.value / widget.target) * 100 : 0;
 

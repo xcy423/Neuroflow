@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, PanInfo } from "motion/react";
 import { Settings2, Flower2, TreePine, Grid3x3, Plus, Trash2, Check, X } from "lucide-react";
 import svgPaths from "../imports/svg-crqz6vj79k";
-import stepsIcon from "figma:asset/95c42c7e0690d226fa0fba3f3608cd43fa7da972.png";
+// Using a default emoji for stepsIcon since the figma asset import is invalid
+const stepsIcon = "👟";
 
 interface WidgetPosition {
   id: string;
@@ -11,7 +12,7 @@ interface WidgetPosition {
   size: "small" | "medium" | "large";
 }
 
-interface Widget {
+export interface Widget {
   id: string;
   name: string;
   enabled: boolean;
@@ -183,6 +184,8 @@ export default function SamsungHomeScreen({
             
             {/* Main Content Grid */}
             <div className="grid grid-cols-[auto_1fr_auto] gap-6 items-center">
+...existing code...
+            </div>
               {/* Left: Large Flame Icon with Glow */}
               <motion.div
                 animate={{
@@ -284,7 +287,6 @@ export default function SamsungHomeScreen({
                         </span>
                       </div>
                     ))}
-                  </div>
                   
                   {/* Today Label */}
                   <div className="flex items-center justify-end" style={{ marginLeft: "calc(6 * 48px)" }}>
@@ -360,7 +362,7 @@ export default function SamsungHomeScreen({
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[16px] text-[#4a90e2]">Steps</h3>
               <div className="w-10 h-10 rounded-full bg-[#B8D9F0] flex items-center justify-center">
-                <img src={stepsIcon} alt="Steps" className="w-6 h-6 object-contain" />
+                <span className="text-2xl">{stepsIcon}</span>
               </div>
             </div>
 
@@ -625,7 +627,7 @@ export default function SamsungHomeScreen({
   };
 
   return (
-    <div className="relative w-full h-full bg-[#fcfcfc] overflow-hidden">
+  <div className="absolute inset-0 w-full min-h-screen bg-[#fcfcfc] overflow-x-visible overflow-y-auto">
       {/* CRITICAL: Extra Top Spacing for Dynamic Island - 80px breathing room */}
       <div className="h-[80px] bg-[#fcfcfc]" />
       
@@ -676,21 +678,8 @@ export default function SamsungHomeScreen({
           {[...Array(totalPages)].map((_, pageIndex) => (
             <div
               key={pageIndex}
-              className="min-w-full h-full overflow-y-auto pb-32 px-5 pt-8"
+              className="w-full flex-shrink-0 min-h-screen overflow-y-auto pb-32 px-5 pt-8"
             >
-              {/* Blue Banner on first page */}
-              {pageIndex === 0 && !editMode && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-gradient-to-r from-[#4A90E2] to-[#5BA0F2] rounded-[16px] px-4 py-3 shadow-sm mb-7"
-                >
-                  <p className="text-white text-[13px] font-semibold text-center">
-                    👆 Long-press widgets to edit • Drag to move
-                  </p>
-                </motion.div>
-              )}
-
               {/* Widgets for this page - 28px spacing between widgets */}
               <div className="flex flex-col gap-[28px]">
                 <AnimatePresence mode="popLayout">
