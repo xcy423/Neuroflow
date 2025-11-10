@@ -164,21 +164,32 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => !editMode && onStreakClick()}
-            className={`bg-white border border-[#e2e6e7] rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] cursor-pointer relative ${
+            className={`bg-white border border-[#e2e6e7] rounded-[20px] cursor-pointer relative transition-shadow duration-200 ${
               isBeingDragged ? "z-50 shadow-2xl" : ""
-            } ${editMode ? "animate-wiggle" : ""}`}
+            } ${editMode ? "shadow-[0_4px_20px_rgba(0,0,0,0.12)]" : "shadow-[0_2px_12px_rgba(0,0,0,0.06)]"}`}
             style={{
               touchAction: editMode ? "none" : "auto",
               padding: "28px",
             }}
           >
             {editMode && (
-              <button
-                onClick={() => handleRemoveWidget(widgetId)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
-              >
-                <X className="w-4 h-4 text-white" />
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveWidget(widgetId);
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                {/* Orange Drag Handle */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-2 cursor-move">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                </div>
+              </>
             )}
             
             {/* Main Content Grid */}
@@ -343,17 +354,28 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => !editMode && onWidgetClick("steps")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
+            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 cursor-pointer relative transition-shadow duration-200 ${
               isBeingDragged ? "z-50 shadow-2xl" : ""
-            } ${editMode ? "animate-wiggle" : ""}`}
+            } ${editMode ? "shadow-[0_4px_20px_rgba(0,0,0,0.12)]" : "shadow-sm"}`}
           >
             {editMode && (
-              <button
-                onClick={() => handleRemoveWidget(widgetId)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
-              >
-                <X className="w-4 h-4 text-white" />
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveWidget(widgetId);
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                {/* Orange Drag Handle */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-2 cursor-move">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                </div>
+              </>
             )}
             
             {/* Header */}
@@ -437,17 +459,28 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => !editMode && onWidgetClick("sleep")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-6 shadow-sm cursor-pointer relative ${
+            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-6 cursor-pointer relative transition-shadow duration-200 ${
               isBeingDragged ? "z-50 shadow-2xl" : ""
-            } ${editMode ? "animate-wiggle" : ""}`}
+            } ${editMode ? "shadow-[0_4px_20px_rgba(0,0,0,0.12)]" : "shadow-sm"}`}
           >
             {editMode && (
-              <button
-                onClick={() => handleRemoveWidget(widgetId)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
-              >
-                <X className="w-4 h-4 text-white" />
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveWidget(widgetId);
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                {/* Orange Drag Handle */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-2 cursor-move">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                </div>
+              </>
             )}
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -495,17 +528,28 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => !editMode && onWidgetClick("hrv")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
+            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 cursor-pointer relative transition-shadow duration-200 ${
               isBeingDragged ? "z-50 shadow-2xl" : ""
-            } ${editMode ? "animate-wiggle" : ""}`}
+            } ${editMode ? "shadow-[0_4px_20px_rgba(0,0,0,0.12)]" : "shadow-sm"}`}
           >
             {editMode && (
-              <button
-                onClick={() => handleRemoveWidget(widgetId)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
-              >
-                <X className="w-4 h-4 text-white" />
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveWidget(widgetId);
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                {/* Orange Drag Handle */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-2 cursor-move">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                </div>
+              </>
             )}
             <div className="flex items-center justify-between">
               <div>
@@ -546,17 +590,28 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => !editMode && onWidgetClick("wellnessScore")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
+            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 cursor-pointer relative transition-shadow duration-200 ${
               isBeingDragged ? "z-50 shadow-2xl" : ""
-            } ${editMode ? "animate-wiggle" : ""}`}
+            } ${editMode ? "shadow-[0_4px_20px_rgba(0,0,0,0.12)]" : "shadow-sm"}`}
           >
             {editMode && (
-              <button
-                onClick={() => handleRemoveWidget(widgetId)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
-              >
-                <X className="w-4 h-4 text-white" />
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveWidget(widgetId);
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                {/* Orange Drag Handle */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-2 cursor-move">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                </div>
+              </>
             )}
             <h3 className="text-[14px] font-semibold text-[#2c3e50] mb-3">Wellness Score</h3>
             <div className="flex items-center gap-4">
@@ -593,17 +648,28 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => !editMode && onWidgetClick("moodTrends")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
+            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 cursor-pointer relative transition-shadow duration-200 ${
               isBeingDragged ? "z-50 shadow-2xl" : ""
-            } ${editMode ? "animate-wiggle" : ""}`}
+            } ${editMode ? "shadow-[0_4px_20px_rgba(0,0,0,0.12)]" : "shadow-sm"}`}
           >
             {editMode && (
-              <button
-                onClick={() => handleRemoveWidget(widgetId)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
-              >
-                <X className="w-4 h-4 text-white" />
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveWidget(widgetId);
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                {/* Orange Drag Handle */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-2 cursor-move">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A623]"></div>
+                </div>
+              </>
             )}
             <h3 className="text-[14px] font-semibold text-[#2c3e50] mb-3">Mood Trends</h3>
             <div className="flex items-center gap-3">
@@ -626,11 +692,11 @@ export default function SamsungHomeScreen({
 
   return (
     <div className="relative w-full h-full bg-[#fcfcfc] overflow-hidden">
-      {/* CRITICAL: Extra Top Spacing for Dynamic Island - 80px breathing room */}
-      <div className="h-[80px] bg-[#fcfcfc]" />
+      {/* Standard Top Spacing for status bar/Dynamic Island - 44px safe area */}
+      <div className="h-[44px] bg-[#fcfcfc]" />
       
-      {/* Top Greeting Bar - Now positioned well below Dynamic Island */}
-      <div className="sticky top-[80px] z-40 bg-[#fcfcfc]/95 backdrop-blur-sm border-b border-[#e2e6e7]/50 px-5 py-5">
+      {/* Top Greeting Bar - Positioned below status bar */}
+      <div className="sticky top-[44px] z-40 bg-[#fcfcfc]/95 backdrop-blur-sm border-b border-[#e2e6e7]/50 px-5 py-5">
         <div className="flex items-center justify-between">
           <div className="bg-white border border-[#e2e6e7] rounded-full px-4 py-2 shadow-sm">
             <p className="text-[14px] font-semibold text-[#2c3e50]">Good Morning</p>
@@ -678,19 +744,6 @@ export default function SamsungHomeScreen({
               key={pageIndex}
               className="min-w-full h-full overflow-y-auto pb-32 px-5 pt-8"
             >
-              {/* Blue Banner on first page */}
-              {pageIndex === 0 && !editMode && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-gradient-to-r from-[#4A90E2] to-[#5BA0F2] rounded-[16px] px-4 py-3 shadow-sm mb-7"
-                >
-                  <p className="text-white text-[13px] font-semibold text-center">
-                    👆 Long-press widgets to edit • Drag to move
-                  </p>
-                </motion.div>
-              )}
-
               {/* Widgets for this page - 28px spacing between widgets */}
               <div className="flex flex-col gap-[28px]">
                 <AnimatePresence mode="popLayout">
