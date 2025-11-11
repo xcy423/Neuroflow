@@ -2,7 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { Flame, Clock, Search, ArrowLeft, CheckCircle2, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-export default function EnhancedChallengesScreen() {
+interface EnhancedChallengesScreenProps {
+  onNavigateHome: () => void;
+}
+
+export default function EnhancedChallengesScreen({ onNavigateHome }: EnhancedChallengesScreenProps) {
   const [activeTab, setActiveTab] = useState<"my" | "discover">("my");
   const [activeCardId, setActiveCardId] = useState<number | null>(null);
   const [selectedChallenge, setSelectedChallenge] = useState<number | null>(null);
@@ -241,13 +245,38 @@ export default function EnhancedChallengesScreen() {
 
   // Main Challenges List View
   return (
-    <div className="bg-[#fcfcfc] relative size-full overflow-hidden">
+    <div className="bg-[#fcfcfc] relative w-full h-full">
       {/* CRITICAL: Extra Top Spacing for Dynamic Island */}
-      <div className="h-[80px] bg-[#fcfcfc]" />
+      <div className="h-[30px] bg-[#fcfcfc]" />
       
-      <div className="size-full overflow-y-auto pb-24">
+      {/* Logo and Company Name Header */}
+      <div className="sticky top-0 z-50 bg-[#fcfcfc] px-6 pt-6 pb-4">
+        <motion.button
+          onClick={onNavigateHome}
+          className="flex items-center gap-4 group"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          {/* Logo - Clickable */}
+          <div className="flex-shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+              <span className="text-2xl">🧠</span>
+            </div>
+          </div>
+
+          {/* App Name - Clickable */}
+          <h1
+            className="text-[24px] font-bold text-[#2c3e50] group-hover:text-[#4A90E2] transition-colors"
+            style={{ fontFamily: "Poppins, sans-serif" }}
+          >
+            NeuroFlow
+          </h1>
+        </motion.button>
+      </div>
+      
+      <div className="w-full h-full pb-24">
         {/* Sticky Tab Navigation */}
-        <div className="sticky top-[80px] z-40 bg-[#fcfcfc]/95 backdrop-blur-sm px-5 py-3 border-b border-[#e2e6e7]/30">
+        <div className="sticky top-[110px] z-40 bg-[#fcfcfc]/95 backdrop-blur-sm px-5 py-3 border-b border-[#e2e6e7]/30">
           <div className="bg-[#ecf0f1] flex items-center pl-[2px] pr-[10px] py-[2px] rounded-[100px] w-full max-w-md mx-auto">
             <button
               onClick={() => setActiveTab("my")}

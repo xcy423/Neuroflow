@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, PanInfo } from "motion/react";
 import { Settings2, Flower2, TreePine, Grid3x3, Plus, Trash2, Check, X } from "lucide-react";
+import AnimatedHomeHeader from "./AnimatedHomeHeader";
 import svgPaths from "../imports/svg-crqz6vj79k";
 // Using a default emoji for stepsIcon since the figma asset import is invalid
 const stepsIcon = "👟";
@@ -54,52 +55,73 @@ export default function SamsungHomeScreen({
   const [currentPage, setCurrentPage] = useState(0);
   const [editMode, setEditMode] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
+  const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
   const [widgetPositions, setWidgetPositions] = useState<WidgetPosition[]>([
     { id: "streak", page: 0, order: 0, size: "medium" },
     { id: "steps", page: 0, order: 1, size: "large" },
     { id: "sleep", page: 0, order: 2, size: "large" },
     { id: "hrv", page: 1, order: 0, size: "medium" },
   ]);
-  const [draggedWidget, setDraggedWidget] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState(3);
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+
+  // Daily goals tracking
+  const dailyGoals = [
+    { id: "mood", label: "Log Mood", completed: moodLogCount > 0 },
+    { id: "meditation", label: "Meditate", completed: true },
+    { id: "exercise", label: "Exercise", completed: false },
+  ];
+  const completedGoals = dailyGoals.filter(g => g.completed).length;
+  const totalGoals = dailyGoals.length;
 
   const enabledWidgets = widgets.filter(w => w.enabled).sort((a, b) => a.order - b.order);
 
-  const handleLongPress = (widgetId: string) => {
-    longPressTimer.current = setTimeout(() => {
-      setEditMode(true);
-      setDraggedWidget(widgetId);
-    }, 500);
-  };
-
-  const handlePressEnd = () => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  };
-
-  const handleDragEnd = (widgetId: string, info: PanInfo) => {
-    // Handle page switching based on drag position
-    const dragX = info.offset.x;
-    if (Math.abs(dragX) > 150) {
-      const direction = dragX > 0 ? -1 : 1;
-      const newPage = Math.max(0, Math.min(totalPages - 1, currentPage + direction));
+  const handleSwapWidgets = (widgetId1: string, widgetId2: string) => {
+    setWidgetPositions(prev => {
+      const widget1 = prev.find(w => w.id === widgetId1);
+      const widget2 = prev.find(w => w.id === widgetId2);
       
-      setWidgetPositions(prev =>
-        prev.map(w =>
-          w.id === widgetId ? { ...w, page: newPage } : w
-        )
-      );
-      setCurrentPage(newPage);
+      if (!widget1 || !widget2) return prev;
+      
+      // Swap their positions
+      return prev.map(w => {
+        if (w.id === widgetId1) {
+          return { ...w, page: widget2.page, order: widget2.order };
+        }
+        if (w.id === widgetId2) {
+          return { ...w, page: widget1.page, order: widget1.order };
+        }
+        return w;
+      });
+    });
+  };
+
+  const handleWidgetClick = (widgetId: string) => {
+    if (editMode) {
+      if (selectedWidget === null) {
+        // First widget selected
+        setSelectedWidget(widgetId);
+      } else if (selectedWidget === widgetId) {
+        // Clicking the same widget - deselect
+        setSelectedWidget(null);
+      } else {
+        // Second widget selected - swap them
+        handleSwapWidgets(selectedWidget, widgetId);
+        setSelectedWidget(null);
+      }
+    } else {
+      // Normal mode - trigger widget actions
+      if (widgetId === "streak") {
+        onStreakClick();
+      } else {
+        onWidgetClick(widgetId);
+      }
     }
-    setDraggedWidget(null);
   };
 
   const handleSaveLayout = () => {
     setEditMode(false);
+    setSelectedWidget(null);
     setShowSaveConfirm(true);
     setTimeout(() => setShowSaveConfirm(false), 2000);
   };
@@ -135,7 +157,7 @@ export default function SamsungHomeScreen({
   ].filter(w => !widgetPositions.find(wp => wp.id === w.id));
 
   const renderWidget = (widgetId: string, position: WidgetPosition) => {
-    const isBeingDragged = draggedWidget === widgetId;
+    const isSelected = selectedWidget === widgetId;
 
     switch (widgetId) {
       case "streak":
@@ -155,21 +177,13 @@ export default function SamsungHomeScreen({
           <motion.div
             layout
             layoutId={`widget-${widgetId}`}
-            drag={editMode}
-            dragElastic={0.1}
-            dragMomentum={false}
-            onDragEnd={(e, info) => handleDragEnd(widgetId, info)}
-            onPointerDown={() => !editMode && handleLongPress(widgetId)}
-            onPointerUp={handlePressEnd}
-            onPointerLeave={handlePressEnd}
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
-            onClick={() => !editMode && onStreakClick()}
-            className={`bg-white border border-[#e2e6e7] rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] cursor-pointer relative ${
-              isBeingDragged ? "z-50 shadow-2xl" : ""
+            onClick={() => handleWidgetClick(widgetId)}
+            className={`bg-white border-2 rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] cursor-pointer relative ${
+              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
             } ${editMode ? "animate-wiggle" : ""}`}
             style={{
-              touchAction: editMode ? "none" : "auto",
               padding: "28px",
             }}
           >
@@ -182,32 +196,30 @@ export default function SamsungHomeScreen({
               </button>
             )}
             
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-[auto_1fr_auto] gap-6 items-center">
-...existing code...
-            </div>
-              {/* Left: Large Flame Icon with Glow */}
-              <motion.div
-                animate={{
-                  scale: [1, 1.05, 1],
-                  filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="w-[64px] h-[64px] rounded-full flex items-center justify-center relative"
-                style={{
-                  background: "linear-gradient(135deg, #F5A623 0%, #F8BC4A 100%)",
-                  boxShadow: "0 4px 20px rgba(245, 166, 35, 0.4), 0 0 40px rgba(245, 166, 35, 0.2)",
-                }}
-              >
-                <span className="text-[36px]">🔥</span>
-              </motion.div>
+            {/* Main Content - Vertical Layout */}
+            <div className="flex flex-col gap-4">
+              {/* Top Row: Flame Icon + Streak Info */}
+              <div className="flex items-center gap-3">
+                {/* Flame Icon - Smaller */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.05, 1],
+                    filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="w-[48px] h-[48px] rounded-full flex items-center justify-center relative flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #F5A623 0%, #F8BC4A 100%)",
+                    boxShadow: "0 4px 20px rgba(245, 166, 35, 0.4), 0 0 40px rgba(245, 166, 35, 0.2)",
+                  }}
+                >
+                  <span className="text-[28px]">🔥</span>
+                </motion.div>
 
-              {/* Center: Streak Info + Day Circles */}
-              <div className="flex flex-col gap-4">
                 {/* Streak Number and Title */}
                 <div>
                   <div className="flex items-baseline gap-2">
@@ -220,10 +232,12 @@ export default function SamsungHomeScreen({
                   </div>
                   <p className="text-[14px] text-[#868686] mt-1">Mood Log Streak</p>
                 </div>
+              </div>
+              {/* End of Top Row */}
 
-                {/* Horizontal Day Circles */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
+              {/* Bottom Row: Day Circles */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
                     {weekMoods.map((mood, index) => {
                       const isToday = index === 6;
                       return (
@@ -287,6 +301,7 @@ export default function SamsungHomeScreen({
                         </span>
                       </div>
                     ))}
+                  </div>
                   
                   {/* Today Label */}
                   <div className="flex items-center justify-end" style={{ marginLeft: "calc(6 * 48px)" }}>
@@ -294,6 +309,42 @@ export default function SamsungHomeScreen({
                   </div>
                 </div>
               </div>
+<<<<<<< HEAD
+            
+            {/* Bottom Left: Mascot Nudge - Clickable to log mood */}
+            <div 
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent widget click
+                onPlusClick();
+              }}
+              className="absolute bottom-4 left-4 flex items-center gap-2 cursor-pointer group"
+            >
+              {/* Mascot Emoji - on the left */}
+              <motion.div
+                animate={{
+                  y: [0, -4, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A8D5BA] to-[#4A90E2] flex items-center justify-center text-[16px] shadow-md group-hover:scale-110 transition-transform"
+              >
+                🌸
+              </motion.div>
+              
+              {/* Text Bubble - on the right */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white border border-[#e2e6e7] rounded-[12px] px-3 py-2 shadow-md group-hover:border-[#4A90E2] group-hover:shadow-lg transition-all"
+              >
+                <p className="text-[11px] text-[#4A90E2] font-semibold">Log today's mood?</p>
+              </motion.div>
+            </div>
+=======
 
               {/* Right: Motivational Note */}
               <div className="text-right">
@@ -304,26 +355,20 @@ export default function SamsungHomeScreen({
             </div>
 
             {/* Mascot nudge removed */}
+>>>>>>> 09c7bd84ca3150d2d1dc75c46f7d78a7800b0c47
           </motion.div>
         );
 
       case "steps":
         return (
           <motion.div
+            key={`steps-widget-${currentPage}`}
             layout
-            layoutId={`widget-${widgetId}`}
-            drag={editMode}
-            dragElastic={0.1}
-            dragMomentum={false}
-            onDragEnd={(e, info) => handleDragEnd(widgetId, info)}
-            onPointerDown={() => !editMode && handleLongPress(widgetId)}
-            onPointerUp={handlePressEnd}
-            onPointerLeave={handlePressEnd}
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
-            onClick={() => !editMode && onWidgetClick("steps")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
-              isBeingDragged ? "z-50 shadow-2xl" : ""
+            onClick={() => handleWidgetClick(widgetId)}
+            className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
+              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
             } ${editMode ? "animate-wiggle" : ""}`}
           >
             {editMode && (
@@ -346,53 +391,58 @@ export default function SamsungHomeScreen({
             {/* Main Content: Steps count on left, Progress ring on right */}
             <div className="flex items-center justify-between mb-4">
               {/* Left: Step count */}
-              <div className="flex flex-col">
-                <p className="text-[24px] text-[#4a90e2] leading-tight mb-[-4px]">6514</p>
+              <div className="flex items-baseline gap-1">
+                <p className="text-[24px] text-[#4a90e2] font-bold leading-tight">6514</p>
                 <p className="text-[20px] text-[#868686] leading-tight">/8000</p>
               </div>
 
-              {/* Right: Progress ring */}
+              {/* Right: Animated Progress Ring */}
               <div className="relative w-[120px] h-[120px]">
-                {/* Outer white/blue ring */}
-                <div className="absolute left-[7.05px] top-[7px] w-[115px] h-[115px]">
-                  <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 115 115">
-                    <path d={svgPaths.p2153e100} fill="white" />
-                    <path d={svgPaths.p2153e100} fill="#4A90E2" fillOpacity="0.5" />
-                  </svg>
-                </div>
+                {/* Background circle */}
+                <svg className="absolute inset-0 w-full h-full -rotate-90">
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="50"
+                    stroke="#ECF0F1"
+                    strokeWidth="10"
+                    fill="none"
+                  />
+                </svg>
                 
-                {/* Progress arc with gradient */}
-                <div className="absolute flex h-[calc(1px*((var(--transform-inner-width)*0.9961169958114624)+(var(--transform-inner-height)*0.08803948014974594)))] items-center justify-center left-0 top-0 w-[calc(1px*((var(--transform-inner-height)*0.9961169958114624)+(var(--transform-inner-width)*0.08803948014974594)))]" style={{ "--transform-inner-width": "120", "--transform-inner-height": "120" } as React.CSSProperties}>
-                  <div className="flex-none rotate-[95.051deg]">
-                    <div className="relative size-[120px]">
-                      <div className="absolute bottom-0 left-0 right-[0.23%] top-[11.57%] m-[0px] p-[0px]">
-                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 120 107">
-                          <path d={svgPaths.p2d995880} fill="#ECF0F1" />
-                          <path d={svgPaths.p2d995880} fill="url(#stepsGradient)" fillOpacity="0.8" />
-                          <defs>
-                            <linearGradient gradientUnits="userSpaceOnUse" id="stepsGradient" x1="1.68096e-05" x2="120" y1="46.1201" y2="46.1201">
-                              <stop stopColor="#4A90E2" />
-                              <stop offset="1" stopColor="#A8D5BA" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {/* Animated progress circle - starts at 12 o'clock, fills clockwise */}
+                <svg className="absolute inset-0 w-full h-full -rotate-90" key={`steps-progress-${currentPage}`}>
+                  <defs>
+                    <linearGradient id="stepsGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#4A90E2" />
+                      <stop offset="100%" stopColor="#A8D5BA" />
+                    </linearGradient>
+                  </defs>
+                  <motion.circle
+                    key={`steps-circle-${currentPage}`}
+                    cx="60"
+                    cy="60"
+                    r="50"
+                    stroke="url(#stepsGradient)"
+                    strokeWidth="10"
+                    fill="none"
+                    strokeLinecap="round"
+                    initial={{ strokeDasharray: "314", strokeDashoffset: "314" }}
+                    animate={{ strokeDashoffset: "59.66" }}
+                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                  />
+                </svg>
 
-                {/* Percentage badge */}
-                <div className="absolute left-[62.05px] top-[41px] box-border px-[4px] py-[2px] rounded-[4px]" style={{ backgroundImage: "linear-gradient(90deg, rgba(74, 144, 226, 0.5) 0%, rgba(74, 144, 226, 0.5) 100%), linear-gradient(90deg, rgb(255, 255, 255) 0%, rgb(255, 255, 255) 100%)" }}>
-                  <p className="text-[14px] text-[#4a90e2] text-center">81%</p>
-                </div>
-
-                {/* Arrow indicator */}
-                <div className="absolute h-[10.5px] left-[86.3px] top-[38px] w-[14.5px]">
-                  <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 15 11">
-                    <path d={svgPaths.p3b01e280} fill="white" />
-                    <path d={svgPaths.p3b01e280} fill="#4A90E2" fillOpacity="0.5" />
-                  </svg>
-                </div>
+                {/* Percentage badge with fade-in - no background box */}
+                <motion.div
+                  key={`steps-badge-${currentPage}`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 1 }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <p className="text-[20px] font-bold text-[#4a90e2]">81%</p>
+                </motion.div>
               </div>
             </div>
 
@@ -406,18 +456,11 @@ export default function SamsungHomeScreen({
           <motion.div
             layout
             layoutId={`widget-${widgetId}`}
-            drag={editMode}
-            dragElastic={0.1}
-            dragMomentum={false}
-            onDragEnd={(e, info) => handleDragEnd(widgetId, info)}
-            onPointerDown={() => !editMode && handleLongPress(widgetId)}
-            onPointerUp={handlePressEnd}
-            onPointerLeave={handlePressEnd}
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
-            onClick={() => !editMode && onWidgetClick("sleep")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-6 shadow-sm cursor-pointer relative ${
-              isBeingDragged ? "z-50 shadow-2xl" : ""
+            onClick={() => handleWidgetClick(widgetId)}
+            className={`bg-white border-2 rounded-[16px] p-6 shadow-sm cursor-pointer relative ${
+              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
             } ${editMode ? "animate-wiggle" : ""}`}
           >
             {editMode && (
@@ -464,18 +507,11 @@ export default function SamsungHomeScreen({
           <motion.div
             layout
             layoutId={`widget-${widgetId}`}
-            drag={editMode}
-            dragElastic={0.1}
-            dragMomentum={false}
-            onDragEnd={(e, info) => handleDragEnd(widgetId, info)}
-            onPointerDown={() => !editMode && handleLongPress(widgetId)}
-            onPointerUp={handlePressEnd}
-            onPointerLeave={handlePressEnd}
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
-            onClick={() => !editMode && onWidgetClick("hrv")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
-              isBeingDragged ? "z-50 shadow-2xl" : ""
+            onClick={() => handleWidgetClick(widgetId)}
+            className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
+              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
             } ${editMode ? "animate-wiggle" : ""}`}
           >
             {editMode && (
@@ -515,18 +551,11 @@ export default function SamsungHomeScreen({
           <motion.div
             layout
             layoutId={`widget-${widgetId}`}
-            drag={editMode}
-            dragElastic={0.1}
-            dragMomentum={false}
-            onDragEnd={(e, info) => handleDragEnd(widgetId, info)}
-            onPointerDown={() => !editMode && handleLongPress(widgetId)}
-            onPointerUp={handlePressEnd}
-            onPointerLeave={handlePressEnd}
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
-            onClick={() => !editMode && onWidgetClick("wellnessScore")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
-              isBeingDragged ? "z-50 shadow-2xl" : ""
+            onClick={() => handleWidgetClick(widgetId)}
+            className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
+              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
             } ${editMode ? "animate-wiggle" : ""}`}
           >
             {editMode && (
@@ -562,18 +591,11 @@ export default function SamsungHomeScreen({
           <motion.div
             layout
             layoutId={`widget-${widgetId}`}
-            drag={editMode}
-            dragElastic={0.1}
-            dragMomentum={false}
-            onDragEnd={(e, info) => handleDragEnd(widgetId, info)}
-            onPointerDown={() => !editMode && handleLongPress(widgetId)}
-            onPointerUp={handlePressEnd}
-            onPointerLeave={handlePressEnd}
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
-            onClick={() => !editMode && onWidgetClick("moodTrends")}
-            className={`bg-white border border-[#e2e6e7] rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
-              isBeingDragged ? "z-50 shadow-2xl" : ""
+            onClick={() => handleWidgetClick(widgetId)}
+            className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
+              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
             } ${editMode ? "animate-wiggle" : ""}`}
           >
             {editMode && (
@@ -604,15 +626,46 @@ export default function SamsungHomeScreen({
   };
 
   return (
-  <div className="absolute inset-0 w-full min-h-screen bg-[#fcfcfc] overflow-x-visible overflow-y-auto">
-      {/* CRITICAL: Extra Top Spacing for Dynamic Island - 80px breathing room */}
-      <div className="h-[80px] bg-[#fcfcfc]" />
+  <div className="absolute inset-0 w-full min-h-screen bg-[#fcfcfc] overflow-x-hidden">
       
-      {/* Top Greeting Bar - Now positioned well below Dynamic Island */}
-      <div className="sticky top-[80px] z-40 bg-[#fcfcfc]/95 backdrop-blur-sm border-b border-[#e2e6e7]/50 px-5 py-5">
-        <div className="flex items-center justify-between">
-          <div className="bg-white border border-[#e2e6e7] rounded-full px-4 py-2 shadow-sm">
-            <p className="text-[14px] font-semibold text-[#2c3e50]">Good Morning</p>
+      {/* Combined Top Section: Dynamic Island Space + Greeting Bar - Sticky with 100% opacity */}
+      <div className="sticky top-0 z-40 bg-[#fcfcfc] backdrop-blur-sm">
+        {/* CRITICAL: Extra Top Spacing for Dynamic Island - Reduced to 30px */}
+        <div className="h-[30px]" />
+        
+        {/* Animated Header with Logo and Slogan */}
+        <AnimatedHomeHeader />
+        
+        {/* Daily Goal Progress Bar */}
+        <div className="border-b border-[#e2e6e7]/50 px-5 pt-3 pb-5">
+          <div className="flex items-center justify-between">
+          {/* Left: Goal Progress */}
+          <div className="flex items-center gap-3 flex-1">
+            <div className="bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] rounded-full px-4 py-2 shadow-sm">
+              <p className="text-[14px] font-bold text-white">
+                {completedGoals}/{totalGoals} Goals
+              </p>
+            </div>
+            
+            {/* Progress Dots */}
+            <div className="flex items-center gap-1.5">
+              {dailyGoals.map((goal) => (
+                <div
+                  key={goal.id}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    goal.completed 
+                      ? "bg-[#A8D5BA] scale-110" 
+                      : "bg-[#e2e6e7]"
+                  }`}
+                  title={goal.label}
+                />
+              ))}
+            </div>
+            
+            {/* Completion indicator */}
+            {completedGoals === totalGoals && (
+              <span className="text-[14px]">✨</span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -642,20 +695,38 @@ export default function SamsungHomeScreen({
               </button>
             )}
           </div>
+          </div>
         </div>
       </div>
+      {/* End of sticky top section */}
+
+      {/* Edit Mode Instructions */}
+      <AnimatePresence>
+        {editMode && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="bg-[#4A90E2] text-white px-6 py-3 text-center"
+          >
+            <p className="text-[13px] font-semibold">
+              {selectedWidget ? "Tap another widget to swap positions" : "Tap a widget to select it"}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Swipeable Dashboard Pages */}
-      <div className="relative h-full overflow-hidden">
+      <div className="relative overflow-hidden">
         <motion.div
-          className="flex h-full"
+          className="flex"
           animate={{ x: `-${currentPage * 100}%` }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           {[...Array(totalPages)].map((_, pageIndex) => (
             <div
               key={pageIndex}
-              className="w-full flex-shrink-0 min-h-screen overflow-y-auto pb-32 px-5 pt-8"
+              className="w-full flex-shrink-0 pb-32 px-5 pt-8"
             >
               {/* Widgets for this page - 28px spacing between widgets */}
               <div className="flex flex-col gap-[28px]">
