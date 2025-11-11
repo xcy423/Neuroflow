@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import imgWhatsAppImage20251109At163959D16307Ea1 from "figma:asset/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
 
 interface StickyMascotProps {
   currentScreen: "home" | "courses" | "challenges" | "profile";
@@ -116,13 +115,13 @@ export default function StickyMascot({
         onClick={onMascotClick || (() => setShowBubble(!showBubble))}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="overflow-clip rounded-full size-[50px] sm:size-[55px] border-2 border-white shadow-lg pointer-events-auto bg-white"
+        className="overflow-clip rounded-full size-[50px] sm:size-[55px] border-2 border-white shadow-lg pointer-events-auto bg-white flex items-center justify-center"
+        aria-label="Mascot"
+        title="Harmony"
       >
-        <img
-          src={imgWhatsAppImage20251109At163959D16307Ea1}
-          alt="Harmony"
-          className="w-full h-full object-cover scale-150"
-        />
+        <div className="w-full h-full flex items-center justify-center text-[26px]">
+          😊
+        </div>
       </motion.button>
     </div>
   );

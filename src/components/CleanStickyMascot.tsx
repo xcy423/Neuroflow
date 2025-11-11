@@ -1,6 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import imgWhatsAppImage20251109At163959D16307Ea1 from "figma:asset/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
+// Bear mascot variants (local assets)
+import bearMeditation from "../assets/352d9f9fae606db62e48e15296173040c4a16a9a.png"; // seated/meditation
+import bearStanding from "../assets/6f9556f595abd7625507fcafbe4580f443721a2f.png"; // standing neutral
+import bearWaveSmall from "../assets/95c42c7e0690d226fa0fba3f3608cd43fa7da972.png"; // small wave
+import bearWaveLeaves from "../assets/ee663eeb412631a8b9a8000169398cf5360facdd.png"; // wave with leaves
+import bearFront from "../assets/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png"; // front-facing
+import bearPawUp from "../assets/cb93522203c02758e286f789d42463135a58c30f.png"; // paw up
 
 interface CleanStickyMascotProps {
   currentScreen: "home" | "courses" | "challenges" | "profile";
@@ -17,6 +23,33 @@ export default function CleanStickyMascot({
 }: CleanStickyMascotProps) {
   const [showBubble, setShowBubble] = useState(true);
   const [message, setMessage] = useState("");
+
+  // Choose bear variant contextually
+  const mascotVariant = useMemo(() => {
+    // Default variant
+    let src = bearFront;
+    let alt = "Friendly bear";
+
+    if (currentScreen === "courses") {
+      // Meditation pose for Courses
+      src = bearMeditation;
+      alt = "Meditating bear";
+    } else if (currentScreen === "home") {
+      // Welcoming wave on Home
+      src = bearWaveSmall;
+      alt = "Bear waving hello";
+    } else if (currentScreen === "challenges") {
+      // Energetic/paw-up for Challenges
+      src = bearPawUp;
+      alt = "Bear cheering with paw up";
+    } else if (currentScreen === "profile") {
+      // Calm standing or celebratory if score is high
+      src = wellnessScore >= 80 ? bearWaveLeaves : bearStanding;
+      alt = wellnessScore >= 80 ? "Bear celebrating with leaves" : "Bear standing";
+    }
+
+    return { src, alt };
+  }, [currentScreen, wellnessScore]);
 
   useEffect(() => {
     let newMessage = "";
@@ -86,18 +119,14 @@ export default function CleanStickyMascot({
         )}
       </AnimatePresence>
 
-      {/* Mascot Avatar - Harmony the Blob */}
+      {/* Mascot Avatar - Contextual Bear */}
       <motion.button
         onClick={onMascotClick}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
-        className="overflow-clip rounded-full w-[56px] h-[56px] border-3 border-white shadow-xl pointer-events-auto bg-gradient-to-br from-[#FFA07A] to-[#9B7FDB] relative"
+        className="overflow-clip rounded-full w-[56px] h-[56px] border-3 border-white shadow-xl pointer-events-auto bg-white relative"
       >
-        <img
-          src={imgWhatsAppImage20251109At163959D16307Ea1}
-          alt="Harmony"
-          className="w-full h-full object-cover scale-150"
-        />
+        <img src={mascotVariant.src} alt={mascotVariant.alt} className="w-full h-full object-contain" />
         
         {/* Pulse Animation */}
         <motion.div
