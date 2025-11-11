@@ -43,9 +43,10 @@ export default function StreakHistoryModal({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 max-w-[440px] mx-auto"
+            // responsive container: bottom sheet on small screens, centered modal on larger
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
           >
-            <div className="bg-white rounded-t-[32px] p-8 max-h-[80vh] overflow-y-auto">
+            <div className="bg-white rounded-t-[32px] sm:rounded-[16px] pt-4 pb-6 px-6 sm:pt-6 sm:pb-8 sm:px-8 max-h-[80vh] overflow-y-auto w-full sm:max-w-[640px]">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -82,14 +83,14 @@ export default function StreakHistoryModal({
               {/* This Week */}
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-[#2c3e50] mb-4">This Week</h3>
-                <div className="flex justify-between gap-2">
+                <div className="flex justify-between gap-2 overflow-x-auto">
                   {weekData.map((day, i) => (
                     <motion.div
                       key={day.day}
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: i * 0.05, duration: 0.2 }}
-                      className="flex-1 flex flex-col items-center gap-2"
+                      className="flex-none w-12 sm:w-14 flex flex-col items-center gap-2"
                     >
                       <div
                         className={`w-full aspect-square rounded-[12px] flex items-center justify-center ${
@@ -105,17 +106,9 @@ export default function StreakHistoryModal({
                         )}
                       </div>
                       <p className="text-xs text-[#2c3e50] font-semibold">{day.day}</p>
-                      {day.moodLogged && (
-                        <div className="w-2 h-2 bg-[#4A90E2] rounded-full" />
-                      )}
+                      {/* removed small moodLogged dot and legend per request */}
                     </motion.div>
                   ))}
-                </div>
-                <div className="flex items-center justify-center gap-2 mt-4 text-xs text-[#868686]">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-[#4A90E2] rounded-full" />
-                    <span>Mood logged</span>
-                  </div>
                 </div>
               </div>
 

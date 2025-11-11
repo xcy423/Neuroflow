@@ -309,6 +309,7 @@ export default function SamsungHomeScreen({
                   </div>
                 </div>
               </div>
+<<<<<<< HEAD
             
             {/* Bottom Left: Mascot Nudge - Clickable to log mood */}
             <div 
@@ -343,6 +344,18 @@ export default function SamsungHomeScreen({
                 <p className="text-[11px] text-[#4A90E2] font-semibold">Log today's mood?</p>
               </motion.div>
             </div>
+=======
+
+              {/* Right: Motivational Note */}
+              <div className="text-right">
+                <p className="text-[14px] text-[#2C3E50] italic" style={{ fontFamily: "Lora, serif" }}>
+                  Mostly positive<br />this week ❤️
+                </p>
+              </div>
+            </div>
+
+            {/* Mascot nudge removed */}
+>>>>>>> 09c7bd84ca3150d2d1dc75c46f7d78a7800b0c47
           </motion.div>
         );
 
