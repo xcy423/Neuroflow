@@ -15,10 +15,18 @@ export default function CleanStickyMascot({
   wellnessScore,
   onMascotClick,
 }: CleanStickyMascotProps) {
-  const [showBubble, setShowBubble] = useState(true);
+  const [showBubble, setShowBubble] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    // Only show bubble 15% of the time (randomly)
+    const shouldShow = Math.random() < 0.15;
+    
+    if (!shouldShow) {
+      setShowBubble(false);
+      return;
+    }
+    
     let newMessage = "";
     
     switch (currentScreen) {
