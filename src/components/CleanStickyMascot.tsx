@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import imgWhatsAppImage20251109At163959D16307Ea1 from "figma:asset/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
 
 interface CleanStickyMascotProps {
   currentScreen: "home" | "courses" | "challenges" | "profile";
@@ -102,9 +101,9 @@ export default function CleanStickyMascot({
         className="overflow-clip rounded-full w-[56px] h-[56px] border-3 border-white shadow-xl pointer-events-auto bg-gradient-to-br from-[#FFA07A] to-[#9B7FDB] relative"
       >
         <img
-          src={imgWhatsAppImage20251109At163959D16307Ea1}
+          src="https://i.postimg.cc/Jy5SJ4G0/image.png"
           alt="Harmony"
-          className="w-full h-full object-cover scale-150"
+          className="w-full h-full object-cover scale-100"
         />
         
         {/* Pulse Animation */}
