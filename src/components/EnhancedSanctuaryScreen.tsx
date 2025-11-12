@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Send, Mic, Award } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import imgWhatsAppImage20251109At163959D16307Ea1 from "figma:asset/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
 
 interface Message {
   id: string;
@@ -40,8 +39,18 @@ export default function EnhancedSanctuaryScreen({
   const [isChatMode, setIsChatMode] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [atmosphere, setAtmosphere] = useState<"dawn" | "day" | "dusk" | "night">("day");
+  const [showSpeechBubble, setShowSpeechBubble] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+
+  // Hide speech bubble after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSpeechBubble(false);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Atmosphere styles based on selected atmosphere
   const atmospheres = {
@@ -63,37 +72,67 @@ export default function EnhancedSanctuaryScreen({
     },
   };
 
-  // Badges configuration
+  // Badges configuration - positioned to orbit around center at clock positions
   const badges = [
     {
       id: 1,
       name: "First Step",
       icon: "🌱",
       unlocked: completedChallenges >= 1,
-      position: { top: "20%", left: "15%" },
+      position: "top" as const, // 12 o'clock
     },
     {
       id: 2,
       name: "Wellness Warrior",
       icon: "⚔️",
       unlocked: completedChallenges >= 2,
-      position: { top: "30%", right: "20%" },
+      position: "right" as const, // 3 o'clock
     },
     {
       id: 3,
       name: "Mind Master",
       icon: "🧠",
       unlocked: completedChallenges >= 5,
-      position: { top: "50%", left: "25%" },
+      position: "bottom" as const, // 6 o'clock
     },
     {
       id: 4,
       name: "Zen Champion",
       icon: "🏆",
       unlocked: completedChallenges >= 10,
-      position: { top: "40%", right: "15%" },
+      position: "left" as const, // 9 o'clock
     },
   ];
+
+  // Get positioning styles for compass points around mascot
+  const getBadgePosition = (position: "top" | "right" | "bottom" | "left") => {
+    const distance = 100; // Distance from mascot center
+    const badgeSize = 60;
+    const mascotSize = 120;
+
+    switch (position) {
+      case "top":
+        return {
+          top: -(distance + badgeSize / 2),
+          left: mascotSize / 2 - badgeSize / 2,
+        };
+      case "right":
+        return {
+          top: mascotSize / 2 - badgeSize / 2,
+          left: mascotSize + distance - 30, // Moved 30px to the left
+        };
+      case "bottom":
+        return {
+          top: mascotSize + distance,
+          left: mascotSize / 2 - badgeSize / 2,
+        };
+      case "left":
+        return {
+          top: mascotSize / 2 - badgeSize / 2,
+          left: -(distance + badgeSize / 2),
+        };
+    }
+  };
 
   const mascotStage = completedChallenges >= 10 ? "master" : completedChallenges >= 5 ? "advanced" : completedChallenges >= 2 ? "growing" : "beginner";
 
@@ -278,18 +317,18 @@ export default function EnhancedSanctuaryScreen({
               initial={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="absolute bottom-[25%] left-1/2 -translate-x-1/2"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             >
               <div className="relative">
                 <div className="overflow-clip rounded-full size-[120px] border-4 border-white/50 shadow-2xl bg-white">
                   <img
-                    src={imgWhatsAppImage20251109At163959D16307Ea1}
+                    src="https://i.postimg.cc/Jy5SJ4G0/image.png"
                     alt="Harmony"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-md">
-                  <p className="text-[12px] font-semibold text-[#4A90E2]">
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-md z-10">
+                  <p className={`text-[12px] font-semibold ${atmosphere === "night" ? "text-white" : "text-[#4A90E2]"}`}>
                     {mascotStage === "master"
                       ? "Master Level"
                       : mascotStage === "advanced"
@@ -299,21 +338,78 @@ export default function EnhancedSanctuaryScreen({
                       : "Beginner"}
                   </p>
                 </div>
+
+                {/* Achievement Badges - Positioned around mascot */}
+                {badges.map((badge, index) => (
+                  <motion.div
+                    key={badge.id}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1,
+                      x: [0, 3, -3, 0],
+                      y: [0, -3, 3, 0],
+                    }}
+                    transition={{ 
+                      duration: 0.3,
+                      x: {
+                        duration: 8 + index * 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      },
+                      y: {
+                        duration: 7 + index * 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      },
+                    }}
+                    className="absolute"
+                    style={getBadgePosition(badge.position)}
+                  >
+                    <div
+                      className={`size-[60px] rounded-full flex items-center justify-center text-2xl transition-all ${
+                        badge.unlocked
+                          ? "bg-white border-2 border-[#A8D5BA] shadow-lg scale-100"
+                          : "bg-gray-300/30 border-2 border-gray-400/30 grayscale scale-90"
+                      }`}
+                    >
+                      {badge.unlocked ? badge.icon : "🔒"}
+                    </div>
+                    <p
+                      className={`text-[10px] text-center mt-1 font-medium whitespace-nowrap ${
+                        badge.unlocked 
+                          ? atmosphere === "night" ? "text-white" : "text-[#2c3e50]"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {badge.name}
+                    </p>
+                  </motion.div>
+                ))}
               </div>
 
-              {/* Speech Bubble */}
-              <div className="absolute -top-24 left-1/2 -translate-x-1/2 bg-white rounded-[16px] p-4 shadow-lg max-w-[200px]">
-                <p className="text-[12px] text-[#2c3e50] text-center">
-                  {mascotStage === "master"
-                    ? "You're a wellness master! 🌟"
-                    : mascotStage === "advanced"
-                    ? "Amazing progress! Keep it up! ✨"
-                    : mascotStage === "growing"
-                    ? "You're doing great! 💚"
-                    : "Welcome to your sanctuary! 🌱"}
-                </p>
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45" />
-              </div>
+              {/* Speech Bubble - Disappears after 3 seconds */}
+              <AnimatePresence>
+                {showSpeechBubble && (
+                  <motion.div 
+                    initial={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute -top-24 left-1/2 -translate-x-1/2 bg-white rounded-[16px] p-4 shadow-lg max-w-[200px]"
+                  >
+                    <p className={`text-[12px] text-center ${atmosphere === "night" ? "text-white" : "text-[#2c3e50]"}`}>
+                      {mascotStage === "master"
+                        ? "You're a wellness master! 🌟"
+                        : mascotStage === "advanced"
+                        ? "Amazing progress! Keep it up! ✨"
+                        : mascotStage === "growing"
+                        ? "You're doing great! 💚"
+                        : "Welcome to your sanctuary! 🌱"}
+                    </p>
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
@@ -341,7 +437,7 @@ export default function EnhancedSanctuaryScreen({
                 <div className="relative">
                   <div className="overflow-clip rounded-full size-[100px] border-4 border-white/70 shadow-2xl bg-gradient-to-br from-[#FFA07A] to-[#9B7FDB]">
                     <img
-                      src={imgWhatsAppImage20251109At163959D16307Ea1}
+                      src="https://i.postimg.cc/Jy5SJ4G0/image.png"
                       alt="Harmony"
                       className="w-full h-full object-cover scale-150"
                     />
@@ -358,38 +454,6 @@ export default function EnhancedSanctuaryScreen({
               </motion.div>
             </motion.div>
           )}
-        </AnimatePresence>
-
-        {/* Wall Badges - Hidden in chat mode */}
-        <AnimatePresence>
-          {!isChatMode && badges.map((badge) => (
-            <motion.div
-              key={badge.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-              className="absolute"
-              style={badge.position}
-            >
-              <div
-                className={`size-[60px] rounded-full flex items-center justify-center text-2xl transition-all ${
-                  badge.unlocked
-                    ? "bg-white border-2 border-[#A8D5BA] shadow-lg scale-100"
-                    : "bg-gray-300/30 border-2 border-gray-400/30 grayscale scale-90"
-                }`}
-              >
-                {badge.unlocked ? badge.icon : "🔒"}
-              </div>
-              <p
-                className={`text-[10px] text-center mt-1 font-medium ${
-                  badge.unlocked ? "text-[#2c3e50]" : "text-gray-500"
-                }`}
-              >
-                {badge.name}
-              </p>
-            </motion.div>
-          ))}
         </AnimatePresence>
 
         {/* Atmosphere Controls - Hidden in chat mode */}
@@ -427,15 +491,15 @@ export default function EnhancedSanctuaryScreen({
               initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="absolute top-20 left-8 right-8 bg-white/90 backdrop-blur-sm rounded-[16px] p-4"
+              className="absolute top-20 left-8 right-8 bg-white/90 backdrop-blur-sm rounded-[16px] p-4 z-20"
             >
               <div className="flex items-start gap-3">
-                <Award className="text-[#F5A623] flex-shrink-0" size={24} />
+                <Award className={atmosphere === "night" ? "text-white" : "text-[#F5A623]"} size={24} />
                 <div>
-                  <p className="text-[14px] font-semibold text-[#2c3e50] mb-1">
+                  <p className={`text-[14px] font-semibold mb-1 ${atmosphere === "night" ? "text-white" : "text-[#2c3e50]"}`}>
                     Unlock More Badges!
                   </p>
-                  <p className="text-[12px] text-[#868686]">
+                  <p className={`text-[12px] ${atmosphere === "night" ? "text-gray-200" : "text-[#868686]"}`}>
                     Complete {10 - completedChallenges} more challenges to unlock
                     the Zen Champion badge
                   </p>
@@ -463,10 +527,10 @@ export default function EnhancedSanctuaryScreen({
             transition={{ duration: 0.3 }}
             className="absolute top-6 left-1/2 -translate-x-1/2 z-20 text-center"
           >
-            <h2 className="text-[24px] font-bold text-[#2c3e50] mb-1">
+            <h2 className={`text-[24px] font-bold mb-1 ${atmosphere === "night" ? "text-white" : "text-[#2c3e50]"}`}>
               Your Sanctuary
             </h2>
-            <p className="text-[14px] text-[#868686]">
+            <p className={`text-[14px] ${atmosphere === "night" ? "text-gray-200" : "text-[#868686]"}`}>
               {completedChallenges} challenges completed
             </p>
           </motion.div>
@@ -488,7 +552,7 @@ export default function EnhancedSanctuaryScreen({
               className="w-full bg-white/95 backdrop-blur-md rounded-[20px] px-5 py-4 shadow-lg flex items-center gap-3 hover:shadow-xl transition-all"
             >
               <div className="flex-1 text-left">
-                <p className="text-[14px] text-[#868686]">
+                <p className={`text-[14px] ${atmosphere === "night" ? "text-gray-300" : "text-[#868686]"}`}>
                   Ask Harmony anything... e.g., "How can I reduce stress today?"
                 </p>
               </div>
@@ -512,8 +576,12 @@ export default function EnhancedSanctuaryScreen({
             {/* Chat Header */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-[#e2e6e7]/30">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFA07A] to-[#9B7FDB] flex items-center justify-center">
-                  <span className="text-white text-[12px]">H</span>
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#FFA07A] to-[#9B7FDB] flex items-center justify-center">
+                  <img
+                    src="https://i.postimg.cc/Jy5SJ4G0/image.png"
+                    alt="Harmony"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div>
                   <p className="text-[14px] font-bold text-[#2c3e50]">Harmony</p>
