@@ -95,7 +95,7 @@ export default function CleanStickyMascot({
   }, [currentScreen, moodLogCount, wellnessScore]);
 
   return (
-    <div className="fixed bottom-[90px] right-[20px] z-40 flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-[180px] right-[20px] z-40 flex flex-col items-end gap-3 pointer-events-none">
       {/* Speech Bubble */}
       <AnimatePresence>
         {showBubble && message && (

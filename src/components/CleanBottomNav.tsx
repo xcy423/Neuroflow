@@ -30,7 +30,7 @@ export default function CleanBottomNav({
     >
       {/* Floating Navigation Bar */}
       <div 
-        className="relative bg-white rounded-[24px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] pointer-events-auto"
+        className="relative bg-white/80 backdrop-blur-md rounded-[24px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] pointer-events-auto"
         style={{
           width: 'calc(100vw - 128px)',
           maxWidth: '420px',
@@ -122,12 +122,12 @@ export default function CleanBottomNav({
             onClick={onPlusClick}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="-mt-6 w-[56px] h-[56px] bg-[#4A90E2] rounded-full shadow-[0_6px_20px_rgba(74,144,226,0.4)] flex items-center justify-center z-50 mx-auto"
+            className="-mt-8 w-[64px] h-[64px] bg-[#4A90E2] rounded-full shadow-[0_6px_20px_rgba(74,144,226,0.4)] flex items-center justify-center z-50 mx-auto"
             style={{
               boxShadow: '0 6px 20px rgba(74, 144, 226, 0.4), 0 2px 8px rgba(0, 0, 0, 0.12)'
             }}
           >
-            <Plus className="w-6 h-6 text-white" strokeWidth={3} />
+            <Plus className="w-7 h-7 text-white" strokeWidth={3} />
           </motion.button>
         )}
 

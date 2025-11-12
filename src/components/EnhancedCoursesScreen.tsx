@@ -309,9 +309,10 @@ export default function EnhancedCoursesScreen({ onNavigateHome }: EnhancedCourse
         </motion.button>
       </div>
       
-      <div className="w-full h-full pb-24">
-        {/* Sticky Tab Navigation */}
-        <div className="sticky top-0 z-40 bg-[#fcfcfc]/95 backdrop-blur-sm px-5 py-3 border-b border-[#e2e6e7]/30">
+      {/* Sticky Header Section - Contains Tab Navigation and Stats */}
+      <div className="sticky top-[30px] z-40 bg-[#fcfcfc]">
+        {/* Tab Navigation */}
+        <div className="bg-[#fcfcfc]/95 backdrop-blur-sm px-5 py-3 border-b border-[#e2e6e7]/30">
           <div className="bg-[#ecf0f1] flex items-center pl-[2px] pr-[10px] py-[2px] rounded-[100px] w-full max-w-md mx-auto">
             <button
               onClick={() => setActiveTab("my")}
@@ -344,11 +345,10 @@ export default function EnhancedCoursesScreen({ onNavigateHome }: EnhancedCourse
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="px-5 sm:px-8 pt-5">
-          {/* Course Stats */}
-          {activeTab === "my" && (
-            <div className="flex gap-5 mb-7 flex-wrap justify-center">
+        {/* Course Stats - Only visible for "My Course" tab */}
+        {activeTab === "my" && (
+          <div className="bg-[#fcfcfc] px-5 sm:px-8 pt-5 pb-3">
+            <div className="flex gap-5 flex-wrap justify-center">
               <div className="flex-1 min-w-[150px] max-w-[170px] bg-white border border-[#e2e6e7] rounded-[12px] p-3 flex items-center gap-3">
                 <div className="relative size-[28px] flex-shrink-0">
                   <div className="absolute aspect-[19.8/26.4] left-[24.24%] right-[21.21%] top-[calc(50%+0.5px)] translate-y-[-50%]">
@@ -373,7 +373,13 @@ export default function EnhancedCoursesScreen({ onNavigateHome }: EnhancedCourse
                 <div className="font-medium text-[12px] text-[#2c3e50]">Completed</div>
               </div>
             </div>
-          )}
+          </div>
+        )}
+      </div>
+
+      {/* Scrollable Content Area */}
+      <div className="w-full h-full pb-24 overflow-y-auto">
+        <div className="px-5 sm:px-8 pt-5">
 
           {/* Sort Dropdown */}
           {activeTab === "my" && (

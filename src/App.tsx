@@ -6,6 +6,8 @@ import SamsungHomeScreen from "./components/SamsungHomeScreen";
 import type { Widget } from "./components/SamsungHomeScreen";
 import EnhancedCoursesScreen from "./components/EnhancedCoursesScreen";
 import EnhancedChallengesScreen from "./components/EnhancedChallengesScreen";
+import ChallengeSessionScreen from "./components/ChallengeSessionScreen";
+import type { ChallengeInfo, ChallengeUserRank } from "./types/challenge";
 import SanctuaryScreen from "./components/SanctuaryScreen";
 import EnhancedSanctuaryScreen from "./components/EnhancedSanctuaryScreen";
 import ProfileScreen from "./components/ProfileScreen";
@@ -24,13 +26,14 @@ type Screen =
   | "challenges"
   | "sanctuary"
   | "profile"
-  | "widgetDetail";
+  | "widgetDetail"
+  | "challengeSession";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] =
     useState<Screen>("home");
-  const [selectedWidget, setSelectedWidget] =
-    useState<Widget["type"] | null>(null);
+  const [selectedWidget, setSelectedWidget] = useState<Widget["type"] | null>(null);
+  const [activeChallenge, setActiveChallenge] = useState<ChallengeInfo | null>(null);
   const [showMoodModal, setShowMoodModal] = useState(false);
   const [showWidgetCustomizer, setShowWidgetCustomizer] =
     useState(false);
@@ -212,7 +215,36 @@ export default function App() {
       case "courses":
         return <EnhancedCoursesScreen onNavigateHome={handleBackToHome} />;
       case "challenges":
-        return <EnhancedChallengesScreen onNavigateHome={handleBackToHome} />;
+        return (
+          <EnhancedChallengesScreen
+            onNavigateHome={handleBackToHome}
+            onOpenChallenge={(challenge) => {
+              setActiveChallenge({
+                id: challenge.id,
+                title: challenge.title,
+                category: challenge.category,
+                icon: challenge.icon,
+                description: challenge.description,
+                timeLeft: challenge.timeLeft,
+                participants: challenge.participants,
+                joined: challenge.joined,
+                topUsers: challenge.topUsers as ChallengeUserRank[]
+              });
+              setCurrentScreen("challengeSession");
+            }}
+          />
+        );
+      case "challengeSession":
+        return activeChallenge ? (
+          <ChallengeSessionScreen
+            challenge={activeChallenge}
+            onBack={() => setCurrentScreen("challenges")}
+            onCompleteToday={() => {
+              // basic demo increment: reflect a join or progress change
+              toast.success("Challenge progress updated ✅");
+            }}
+          />
+        ) : null;
       case "sanctuary":
         return (
           <EnhancedSanctuaryScreen
@@ -262,9 +294,9 @@ export default function App() {
     currentScreen !== "widgetDetail";
 
   // compute extra bottom padding so scroll area extends past fixed overlays
-  // INCREASED values for more scroll room
-  const extraBottomBase = showBottomNav ? 420 : 240; // much more room for bottom nav
-  const extraBottomMascot = showMascot ? 180 : 0; // more space if mascot is visible
+  // Trimmed values to reduce heavy bottom spacing while keeping elements clear
+  const extraBottomBase = showBottomNav ? 180 : 120; // enough for rounded nav + raised plus
+  const extraBottomMascot = showMascot ? 80 : 0; // some clearance when mascot is visible
   const paddingBottomValue = `calc(env(safe-area-inset-bottom, 0px) + ${extraBottomBase + extraBottomMascot}px)`;
 
   // Animation variants for swipe transitions - NO FADE for better UX
@@ -337,7 +369,7 @@ export default function App() {
         {/* Sticky Mascot - Non-overlapping */}
         {showMascot && (
           <CleanStickyMascot
-            currentScreen={currentScreen}
+            currentScreen={( ["home","courses","challenges","profile"].includes(currentScreen) ? currentScreen : "challenges") as "home"|"courses"|"challenges"|"profile"}
             moodLogCount={moodLogCount}
             wellnessScore={wellnessScore}
             onMascotClick={handleMascotClick}
