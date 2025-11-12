@@ -3,12 +3,19 @@ import { Search, ArrowLeft, Play } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import svgPaths from "../imports/svg-snij5ma8dm";
 
-export default function EnhancedCoursesScreen() {
+interface EnhancedCoursesScreenProps {
+  onNavigateHome: () => void;
+}
+
+export default function EnhancedCoursesScreen({ onNavigateHome }: EnhancedCoursesScreenProps) {
   const [activeTab, setActiveTab] = useState<"my" | "discover">("my");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCardId, setActiveCardId] = useState<number | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [sortBy, setSortBy] = useState<"date-recent" | "date-oldest" | "progress-high" | "progress-low" | "title-az" | "title-za">("date-recent");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const courses = [
     {
@@ -21,6 +28,7 @@ export default function EnhancedCoursesScreen() {
       progress: 25,
       currentSession: 2,
       totalSessions: 8,
+      enrolledDate: new Date("2025-11-01"),
       guidelines: ["Find a quiet space", "Sit comfortably", "Close your eyes", "Focus on breath"],
     },
     {
@@ -33,6 +41,7 @@ export default function EnhancedCoursesScreen() {
       progress: 60,
       currentSession: 5,
       totalSessions: 8,
+      enrolledDate: new Date("2025-11-08"),
       guidelines: ["Use a yoga mat", "Wear comfortable clothes", "Start slowly", "Listen to your body"],
     },
     {
@@ -45,6 +54,7 @@ export default function EnhancedCoursesScreen() {
       progress: 0,
       currentSession: 0,
       totalSessions: 10,
+      enrolledDate: new Date("2025-11-05"),
       guidelines: ["Lie down comfortably", "Dim the lights", "Put phone on silent", "Relax completely"],
     },
   ];
@@ -52,6 +62,42 @@ export default function EnhancedCoursesScreen() {
   const enrolledCourses = courses.filter(c => c.progress > 0);
   const completedCount = enrolledCourses.filter(c => c.progress === 100).length;
   const enrolledCount = enrolledCourses.length;
+
+  // Sort courses based on selected option
+  const getSortedCourses = () => {
+    const coursesToSort = activeTab === "my" ? enrolledCourses : courses;
+    const sorted = [...coursesToSort];
+
+    switch (sortBy) {
+      case "date-recent":
+        return sorted.sort((a, b) => b.enrolledDate.getTime() - a.enrolledDate.getTime());
+      case "date-oldest":
+        return sorted.sort((a, b) => a.enrolledDate.getTime() - b.enrolledDate.getTime());
+      case "progress-high":
+        return sorted.sort((a, b) => b.progress - a.progress);
+      case "progress-low":
+        return sorted.sort((a, b) => a.progress - b.progress);
+      case "title-az":
+        return sorted.sort((a, b) => a.title.localeCompare(b.title));
+      case "title-za":
+        return sorted.sort((a, b) => b.title.localeCompare(a.title));
+      default:
+        return sorted;
+    }
+  };
+
+  const sortedCourses = getSortedCourses();
+
+  const sortOptions = [
+    { value: "date-recent", label: "Date (Recent First)" },
+    { value: "date-oldest", label: "Date (Oldest First)" },
+    { value: "progress-high", label: "Progress (High to Low)" },
+    { value: "progress-low", label: "Progress (Low to High)" },
+    { value: "title-az", label: "Title (A-Z)" },
+    { value: "title-za", label: "Title (Z-A)" },
+  ];
+
+  const currentSortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || "Date";
 
   // Handle card tap
   const handleCardTap = (courseId: number) => {
@@ -105,6 +151,23 @@ export default function EnhancedCoursesScreen() {
       }
     };
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowSortDropdown(false);
+      }
+    };
+
+    if (showSortDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSortDropdown]);
 
   // Session Screen View
   if (selectedCourse !== null) {
@@ -217,11 +280,36 @@ export default function EnhancedCoursesScreen() {
 
   // Main Courses List View
   return (
-    <div className="bg-[#fcfcfc] relative size-full overflow-hidden">
+    <div className="bg-[#fcfcfc] relative w-full h-full">
       {/* CRITICAL: Extra Top Spacing for Dynamic Island */}
-      <div className="h-[80px] bg-[#fcfcfc]" />
+      <div className="h-[30px] bg-[#fcfcfc]" />
       
-      <div className="size-full overflow-y-auto pb-24">
+      {/* Logo and Company Name Header */}
+      <div className="sticky top-0 z-50 bg-[#fcfcfc] px-6 pt-6 pb-4">
+        <motion.button
+          onClick={onNavigateHome}
+          className="flex items-center gap-4 group"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          {/* Logo - Clickable */}
+          <div className="flex-shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+              <span className="text-2xl">🧠</span>
+            </div>
+          </div>
+
+          {/* App Name - Clickable */}
+          <h1
+            className="text-[24px] font-bold text-[#2c3e50] group-hover:text-[#4A90E2] transition-colors"
+            style={{ fontFamily: "Poppins, sans-serif" }}
+          >
+            NeuroFlow
+          </h1>
+        </motion.button>
+      </div>
+      
+      <div className="w-full h-full pb-24">
         {/* Sticky Tab Navigation */}
         <div className="sticky top-0 z-40 bg-[#fcfcfc]/95 backdrop-blur-sm px-5 py-3 border-b border-[#e2e6e7]/30">
           <div className="bg-[#ecf0f1] flex items-center pl-[2px] pr-[10px] py-[2px] rounded-[100px] w-full max-w-md mx-auto">
@@ -289,25 +377,62 @@ export default function EnhancedCoursesScreen() {
 
           {/* Sort Dropdown */}
           {activeTab === "my" && (
-            <div className="flex justify-end mb-7">
-              <button className="flex gap-1 items-center justify-center px-3 py-2 rounded-[8px]">
-                <span className="text-[14px] font-bold text-[#2c3e50]">Date</span>
+            <div ref={dropdownRef} className="relative flex justify-end mb-7">
+              <button 
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
+                className="flex gap-1 items-center justify-center px-3 py-2 rounded-[8px] hover:bg-[#E8F4FD] transition-all"
+              >
+                <span className="text-[14px] font-bold text-[#2c3e50]">{currentSortLabel}</span>
                 <div className="relative size-[15px]">
                   <div className="absolute flex items-center justify-center left-[14.71%] right-[14.71%] top-1/2 translate-y-[-50%]">
-                    <div className="rotate-[270deg] size-[12px]">
+                    <motion.div 
+                      className="size-[12px]"
+                      animate={{ rotate: showSortDropdown ? 90 : 270 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 7 12">
                         <path d={svgPaths.p3314f5f0} fill="#2C3E50" stroke="#2C3E50" strokeWidth="0.5" />
                       </svg>
-                    </div>
+                    </motion.div>
                   </div>
                 </div>
               </button>
+
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {showSortDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-12 right-0 bg-white border border-[#e2e6e7] rounded-[12px] shadow-lg overflow-hidden z-50 min-w-[200px]"
+                  >
+                    {sortOptions.map((option, index) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setSortBy(option.value as any);
+                          setShowSortDropdown(false);
+                        }}
+                        className={`w-full px-4 py-3 text-left text-[14px] transition-all ${
+                          sortBy === option.value
+                            ? "bg-[#4A90E2] text-white font-semibold"
+                            : "text-[#2c3e50] hover:bg-[#E8F4FD]"
+                        } ${index > 0 ? "border-t border-[#e2e6e7]" : ""}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 
           {/* Course List */}
           <div className="flex flex-col gap-7 pb-8">
-            {courses.map((course) => (
+            {sortedCourses.map((course) => (
               <motion.div
                 key={course.id}
                 onClick={() => handleCardTap(course.id)}

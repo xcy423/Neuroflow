@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "motion/react";
 import SamsungHomeScreen from "./components/SamsungHomeScreen";
 import type { Widget } from "./components/SamsungHomeScreen";
 import EnhancedCoursesScreen from "./components/EnhancedCoursesScreen";
@@ -15,6 +16,7 @@ import StreakHistoryModal from "./components/StreakHistoryModal";
 import CleanBottomNav from "./components/CleanBottomNav";
 import CleanStickyMascot from "./components/CleanStickyMascot";
 import DynamicIslandAnnotation from "./components/DynamicIslandAnnotation";
+import { useSwipeNavigation } from "./hooks/useSwipeNavigation";
 
 type Screen =
   | "home"
@@ -35,6 +37,10 @@ export default function App() {
   const [showStreakHistory, setShowStreakHistory] =
     useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
+  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+
+  // Define page order for swipe navigation
+  const pageOrder: Screen[] = ["home", "courses", "challenges", "profile"];
 
   const [userSettings, setUserSettings] = useState({
     showMascot: true,
@@ -130,6 +136,35 @@ export default function App() {
     setSelectedWidget(null);
   };
 
+  // Swipe navigation handlers
+  const handleSwipeLeft = () => {
+    // Swipe left = go to next page
+    const currentIndex = pageOrder.indexOf(currentScreen as any);
+    if (currentIndex !== -1 && currentIndex < pageOrder.length - 1) {
+      setSwipeDirection("left");
+      setCurrentScreen(pageOrder[currentIndex + 1]);
+      setSelectedWidget(null);
+    }
+  };
+
+  const handleSwipeRight = () => {
+    // Swipe right = go to previous page
+    const currentIndex = pageOrder.indexOf(currentScreen as any);
+    if (currentIndex > 0) {
+      setSwipeDirection("right");
+      setCurrentScreen(pageOrder[currentIndex - 1]);
+      setSelectedWidget(null);
+    }
+  };
+
+  // Attach swipe navigation to the main content area
+  const swipeRef = useSwipeNavigation({
+    onSwipeLeft: handleSwipeLeft,
+    onSwipeRight: handleSwipeRight,
+    threshold: 100, // 100px minimum swipe distance
+    velocityThreshold: 0.3, // Fast swipes work even with shorter distance
+  });
+
   const handleWidgetClick = (widgetId: string) => {
     // Accept string for SamsungHomeScreen compatibility
   setSelectedWidget(widgetId as Widget["type"]);
@@ -175,9 +210,9 @@ export default function App() {
           />
         );
       case "courses":
-        return <EnhancedCoursesScreen />;
+        return <EnhancedCoursesScreen onNavigateHome={handleBackToHome} />;
       case "challenges":
-        return <EnhancedChallengesScreen />;
+        return <EnhancedChallengesScreen onNavigateHome={handleBackToHome} />;
       case "sanctuary":
         return (
           <EnhancedSanctuaryScreen
@@ -187,7 +222,7 @@ export default function App() {
           />
         );
       case "profile":
-        return <ProfileScreen />;
+        return <ProfileScreen onNavigateHome={handleBackToHome} />;
       case "widgetDetail":
         return selectedWidget ? (
           <WidgetDetailScreen
@@ -219,9 +254,8 @@ export default function App() {
     }
   };
 
-  const showBottomNav =
-    currentScreen !== "sanctuary" &&
-    currentScreen !== "widgetDetail";
+  // Show bottom nav on all main pages except sanctuary and widget detail
+  const showBottomNav = ["home", "courses", "challenges", "profile"].includes(currentScreen);
   const showMascot =
     userSettings.showMascot &&
     currentScreen !== "sanctuary" &&
@@ -233,33 +267,67 @@ export default function App() {
   const extraBottomMascot = showMascot ? 180 : 0; // more space if mascot is visible
   const paddingBottomValue = `calc(env(safe-area-inset-bottom, 0px) + ${extraBottomBase + extraBottomMascot}px)`;
 
+  // Animation variants for swipe transitions - NO FADE for better UX
+  const pageVariants = {
+    enter: (direction: "left" | "right" | null) => ({
+      x: direction === "left" ? "100%" : direction === "right" ? "-100%" : 0,
+    }),
+    center: {
+      x: 0,
+    },
+    exit: (direction: "left" | "right" | null) => ({
+      x: direction === "left" ? "-100%" : direction === "right" ? "100%" : 0,
+    }),
+  };
+
+  const pageTransition = {
+    type: "tween" as const,
+    ease: [0.25, 0.1, 0.25, 1] as const,
+    duration: 0.2,
+  };
+
   return (
     <div className="relative w-full min-h-screen bg-[#fcfcfc] flex items-center justify-center">
       {/* Main App Container - Responsive with iPhone Dynamic Island Support */}
       <div
-        className="relative w-full max-w-[440px] min-w-[320px] min-h-screen bg-[#fcfcfc] overflow-hidden mx-auto shadow-2xl"
+        className="relative w-full max-w-[440px] min-w-[320px] h-screen bg-[#fcfcfc] overflow-hidden mx-auto shadow-2xl"
         style={{
           // Support for iPhone Safe Areas and Dynamic Island
           paddingTop: "env(safe-area-inset-top, 0px)",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        {/* Main Content - Scrollable with proper insets */}
+        {/* Main Content - Scrollable with proper insets and swipe navigation */}
         <div
-          className="w-full min-h-screen overflow-y-auto overflow-x-hidden"
+          ref={swipeRef}
+          className="w-full h-full overflow-y-auto overflow-x-hidden relative"
           style={{
             // ensure scrolling area extends past fixed bottom elements (bottom nav / mascot)
             // computed so presence/absence of bottom nav/mascot is respected
             paddingBottom: paddingBottomValue,
           }}
         >
-          {renderScreen()}
+          <AnimatePresence mode="popLayout" custom={swipeDirection} initial={false}>
+            <motion.div
+              key={currentScreen}
+              custom={swipeDirection}
+              variants={pageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={pageTransition}
+              onAnimationComplete={() => setSwipeDirection(null)}
+              className="w-full h-full absolute inset-0"
+            >
+              {renderScreen()}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Bottom Navigation - ONLY ONE INSTANCE */}
         {showBottomNav && (
           <CleanBottomNav
-            currentScreen={currentScreen}
+            currentScreen={(["home", "courses", "challenges", "profile"].includes(currentScreen) ? currentScreen : "home") as "home" | "courses" | "challenges" | "profile"}
             onNavigate={handleNavigate}
             onPlusClick={handlePlusClick}
             showPlusButton={userSettings.showPlusButton}
