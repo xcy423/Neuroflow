@@ -1,12 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-// Bear mascot variants (local assets)
-import bearMeditation from "../assets/352d9f9fae606db62e48e15296173040c4a16a9a.png"; // seated/meditation
-import bearStanding from "../assets/6f9556f595abd7625507fcafbe4580f443721a2f.png"; // standing neutral
-import bearWaveSmall from "../assets/95c42c7e0690d226fa0fba3f3608cd43fa7da972.png"; // small wave
-import bearWaveLeaves from "../assets/ee663eeb412631a8b9a8000169398cf5360facdd.png"; // wave with leaves
-import bearFront from "../assets/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png"; // front-facing
-import bearPawUp from "../assets/cb93522203c02758e286f789d42463135a58c30f.png"; // paw up
 
 interface CleanStickyMascotProps {
   currentScreen: "home" | "courses" | "challenges" | "profile";
@@ -134,7 +127,11 @@ export default function CleanStickyMascot({
         whileTap={{ scale: 0.95 }}
         className="overflow-clip rounded-full w-[56px] h-[56px] border-3 border-white shadow-xl pointer-events-auto bg-white relative"
       >
-        <img src={mascotVariant.src} alt={mascotVariant.alt} className="w-full h-full object-contain" />
+        <img
+          src="https://i.postimg.cc/Jy5SJ4G0/image.png"
+          alt="Harmony"
+          className="w-full h-full object-cover scale-100"
+        />
         
         {/* Pulse Animation */}
         <motion.div

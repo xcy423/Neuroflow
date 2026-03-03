@@ -140,6 +140,180 @@ export default function SamsungHomeScreen(props: SamsungHomeScreenProps) {
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
+            className={`bg-white border-2 rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] cursor-pointer relative ${
+              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
+            } ${editMode ? "animate-wiggle" : ""}`}
+            style={{
+              padding: "28px",
+            }}
+          >
+            {editMode && (
+              <button
+                onClick={() => handleRemoveWidget(widgetId)}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            )}
+            
+            {/* Main Content - Vertical Layout */}
+            <div className="flex flex-col gap-4">
+              {/* Top Row: Flame Icon + Streak Info */}
+              <div className="flex items-center gap-3">
+                {/* Flame Icon - Smaller */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.05, 1],
+                    filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="w-[48px] h-[48px] rounded-full flex items-center justify-center relative flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #F5A623 0%, #F8BC4A 100%)",
+                    boxShadow: "0 4px 20px rgba(245, 166, 35, 0.4), 0 0 40px rgba(245, 166, 35, 0.2)",
+                  }}
+                >
+                  <span className="text-[28px]">🔥</span>
+                </motion.div>
+
+                {/* Streak Number and Title */}
+                <div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[48px] font-bold text-[#2C3E50] leading-none tracking-tight" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      {moodLogCount}
+                    </span>
+                    <span className="text-[18px] font-bold text-[#2C3E50]" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      Days
+                    </span>
+                  </div>
+                  <p className="text-[14px] text-[#868686] mt-1">Mood Log Streak</p>
+                </div>
+              </div>
+              {/* End of Top Row */}
+
+              {/* Bottom Row: Day Circles */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                    {weekMoods.map((mood, index) => {
+                      const isToday = index === 6;
+                      return (
+                        <motion.div
+                          key={index}
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="relative flex flex-col items-center"
+                        >
+                          {/* Day Circle */}
+                          <motion.div
+                            animate={
+                              mood.filled && !isToday
+                                ? {
+                                    scale: [1, 1.05, 1],
+                                  }
+                                : {}
+                            }
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: index * 0.3,
+                              ease: "easeInOut",
+                            }}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center text-[18px] transition-all ${
+                              isToday
+                                ? "border-3 border-[#F5A623] bg-white ring-4 ring-[#F5A623]/20"
+                                : mood.filled
+                                ? "border-2"
+                                : "border-2 border-[#F5A623] border-dashed"
+                            }`}
+                            style={{
+                              backgroundColor: mood.filled && !isToday ? mood.color : isToday ? "white" : "transparent",
+                              borderColor: mood.filled && !isToday ? mood.color : "#F5A623",
+                              boxShadow: isToday ? "0 0 20px rgba(245, 166, 35, 0.3)" : "none",
+                            }}
+                          >
+                            {mood.filled ? mood.emoji : ""}
+                            {isToday && (
+                              <motion.span
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                                className="text-[#F5A623] text-[20px]"
+                              >
+                                🔥
+                              </motion.span>
+                            )}
+                          </motion.div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Day Labels */}
+                  <div className="flex items-center gap-2">
+                    {dayLabels.map((label, index) => (
+                      <div key={index} className="w-10 text-center">
+                        <span className={`text-[9px] ${index === 6 ? "text-[#F5A623] font-semibold" : "text-[#b0b0b0]"}`}>
+                          {label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Today Label */}
+                  <div className="flex items-center justify-end" style={{ marginLeft: "calc(6 * 48px)" }}>
+                    <span className="text-[11px] text-[#F5A623] font-semibold">Today</span>
+                  </div>
+                </div>
+              </div>
+            
+            {/* Bottom Left: Mascot Nudge - Clickable to log mood */}
+            <div 
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent widget click
+                onPlusClick();
+              }}
+              className="absolute bottom-4 left-4 flex items-center gap-2 cursor-pointer group"
+            >
+              {/* Mascot Emoji - on the left */}
+              <motion.div
+                animate={{
+                  y: [0, -4, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A8D5BA] to-[#4A90E2] flex items-center justify-center text-[16px] shadow-md group-hover:scale-110 transition-transform"
+              >
+                🌸
+              </motion.div>
+              
+              {/* Text Bubble - on the right */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white border border-[#e2e6e7] rounded-[12px] px-3 py-2 shadow-md group-hover:border-[#4A90E2] group-hover:shadow-lg transition-all"
+              >
+                <p className="text-[11px] text-[#4A90E2] font-semibold">Log today's mood?</p>
+              </motion.div>
+            </div>
+          </motion.div>
+        );
+
+      case "steps":
+        return (
+          <motion.div
+            key={`steps-widget-${currentPage}`}
+            layout
+            whileHover={!editMode ? { scale: 1.01 } : {}}
+            whileTap={!editMode ? { scale: 0.99 } : {}}
+            onClick={() => handleWidgetClick(widgetId)}
             className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
               isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
             } ${editMode ? "animate-wiggle" : ""}`}

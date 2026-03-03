@@ -38,30 +38,60 @@ export default function SanctuaryScreen({
       name: "First Step",
       icon: "🌱",
       unlocked: completedChallenges >= 1,
-      position: { top: "20%", left: "15%" },
+      position: "top" as const, // 12 o'clock
     },
     {
       id: 2,
       name: "Wellness Warrior",
       icon: "⚔️",
       unlocked: completedChallenges >= 2,
-      position: { top: "30%", right: "20%" },
+      position: "right" as const, // 3 o'clock
     },
     {
       id: 3,
       name: "Mind Master",
       icon: "🧠",
       unlocked: completedChallenges >= 5,
-      position: { top: "50%", left: "25%" },
+      position: "bottom" as const, // 6 o'clock
     },
     {
       id: 4,
       name: "Zen Champion",
       icon: "🏆",
       unlocked: completedChallenges >= 10,
-      position: { top: "40%", right: "15%" },
+      position: "left" as const, // 9 o'clock
     },
   ];
+
+  // Get positioning styles for compass points around mascot
+  const getPositionStyles = (position: "top" | "right" | "bottom" | "left") => {
+    const distance = 100; // Distance from mascot center in pixels
+    const badgeSize = 60; // Size of badge
+    const mascotSize = 120; // Size of mascot
+
+    switch (position) {
+      case "top":
+        return {
+          top: -(distance + badgeSize / 2),
+          left: mascotSize / 2 - badgeSize / 2,
+        };
+      case "right":
+        return {
+          top: mascotSize / 2 - badgeSize / 2,
+          left: mascotSize + distance,
+        };
+      case "bottom":
+        return {
+          top: mascotSize + distance,
+          left: mascotSize / 2 - badgeSize / 2,
+        };
+      case "left":
+        return {
+          top: mascotSize / 2 - badgeSize / 2,
+          left: -(distance + badgeSize / 2),
+        };
+    }
+  };
 
   const mascotStage = completedChallenges >= 10 ? "master" : completedChallenges >= 5 ? "advanced" : completedChallenges >= 2 ? "growing" : "beginner";
 
@@ -85,6 +115,24 @@ export default function SanctuaryScreen({
         </p>
       </div>
 
+      {/* Unlock Info */}
+      {completedChallenges < 10 && (
+        <div className="absolute top-32 left-8 right-8 z-20 bg-white/90 backdrop-blur-sm rounded-[16px] p-4">
+          <div className="flex items-start gap-3">
+            <Award className="text-[#F5A623] flex-shrink-0" size={24} />
+            <div>
+              <p className="text-[14px] font-semibold text-[#2c3e50] mb-1">
+                Unlock More Badges!
+              </p>
+              <p className="text-[12px] text-[#868686]">
+                Complete {10 - completedChallenges} more challenges to unlock
+                the Zen Champion badge
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sanctuary Room */}
       <div
         className="absolute inset-0 transition-all duration-1000"
@@ -103,7 +151,7 @@ export default function SanctuaryScreen({
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-md">
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-md z-10">
               <p className="text-[12px] font-semibold text-[#4A90E2]">
                 {mascotStage === "master"
                   ? "Master Level"
@@ -114,10 +162,36 @@ export default function SanctuaryScreen({
                   : "Beginner"}
               </p>
             </div>
+
+            {/* Achievement Badges - Positioned at compass points around mascot */}
+            {badges.map((badge) => (
+              <div
+                key={badge.id}
+                className="absolute animate-fade-in"
+                style={getPositionStyles(badge.position)}
+              >
+                <div
+                  className={`size-[60px] rounded-full flex items-center justify-center text-2xl transition-all ${
+                    badge.unlocked
+                      ? "bg-white border-2 border-[#A8D5BA] shadow-lg scale-100"
+                      : "bg-gray-300/30 border-2 border-gray-400/30 grayscale scale-90"
+                  }`}
+                >
+                  {badge.unlocked ? badge.icon : "🔒"}
+                </div>
+                <p
+                  className={`text-[10px] text-center mt-1 font-medium whitespace-nowrap ${
+                    badge.unlocked ? "text-[#2c3e50]" : "text-gray-500"
+                  }`}
+                >
+                  {badge.name}
+                </p>
+              </div>
+            ))}
           </div>
 
           {/* Speech Bubble */}
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 bg-white rounded-[16px] p-4 shadow-lg max-w-[200px]">
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 bg-white rounded-[16px] p-4 shadow-lg max-w-[200px] z-20">
             <p className="text-[12px] text-[#2c3e50] text-center">
               {mascotStage === "master"
                 ? "You're a wellness master! 🌟"
@@ -130,32 +204,6 @@ export default function SanctuaryScreen({
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45" />
           </div>
         </div>
-
-        {/* Wall Badges */}
-        {badges.map((badge) => (
-          <div
-            key={badge.id}
-            className="absolute animate-fade-in"
-            style={badge.position}
-          >
-            <div
-              className={`size-[60px] rounded-full flex items-center justify-center text-2xl transition-all ${
-                badge.unlocked
-                  ? "bg-white border-2 border-[#A8D5BA] shadow-lg scale-100"
-                  : "bg-gray-300/30 border-2 border-gray-400/30 grayscale scale-90"
-              }`}
-            >
-              {badge.unlocked ? badge.icon : "🔒"}
-            </div>
-            <p
-              className={`text-[10px] text-center mt-1 font-medium ${
-                badge.unlocked ? "text-[#2c3e50]" : "text-gray-500"
-              }`}
-            >
-              {badge.name}
-            </p>
-          </div>
-        ))}
 
         {/* Atmosphere Controls */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 bg-white/80 backdrop-blur-sm rounded-[100px] p-2 shadow-lg">
@@ -175,24 +223,6 @@ export default function SanctuaryScreen({
             )
           )}
         </div>
-
-        {/* Unlock Info */}
-        {completedChallenges < 10 && (
-          <div className="absolute top-24 left-8 right-8 bg-white/90 backdrop-blur-sm rounded-[16px] p-4">
-            <div className="flex items-start gap-3">
-              <Award className="text-[#F5A623] flex-shrink-0" size={24} />
-              <div>
-                <p className="text-[14px] font-semibold text-[#2c3e50] mb-1">
-                  Unlock More Badges!
-                </p>
-                <p className="text-[12px] text-[#868686]">
-                  Complete {10 - completedChallenges} more challenges to unlock
-                  the Zen Champion badge
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

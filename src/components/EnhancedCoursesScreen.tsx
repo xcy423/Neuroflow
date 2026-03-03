@@ -66,7 +66,19 @@ export default function EnhancedCoursesScreen({ onNavigateHome }: EnhancedCourse
   // Sort courses based on selected option
   const getSortedCourses = () => {
     const coursesToSort = activeTab === "my" ? enrolledCourses : courses;
-    const sorted = [...coursesToSort];
+    let sorted = [...coursesToSort];
+
+    // Apply search filter if in discover tab
+    if (activeTab === "discover" && searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      sorted = sorted.filter((course) => {
+        return (
+          course.title.toLowerCase().includes(query) ||
+          course.category.toLowerCase().includes(query) ||
+          course.description.toLowerCase().includes(query)
+        );
+      });
+    }
 
     switch (sortBy) {
       case "date-recent":
@@ -284,71 +296,136 @@ export default function EnhancedCoursesScreen({ onNavigateHome }: EnhancedCourse
       {/* CRITICAL: Extra Top Spacing for Dynamic Island */}
       <div className="h-[30px] bg-[#fcfcfc]" />
       
-      {/* Logo and Company Name Header */}
-      <div className="sticky top-0 z-50 bg-[#fcfcfc] px-6 pt-6 pb-4">
-        <motion.button
-          onClick={onNavigateHome}
-          className="flex items-center gap-4 group"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          {/* Logo - Clickable */}
-          <div className="flex-shrink-0">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-              <span className="text-2xl">🧠</span>
-            </div>
-          </div>
-
-          {/* App Name - Clickable */}
-          <h1
-            className="text-[24px] font-bold text-[#2c3e50] group-hover:text-[#4A90E2] transition-colors"
-            style={{ fontFamily: "Poppins, sans-serif" }}
-          >
-            NeuroFlow
-          </h1>
-        </motion.button>
-      </div>
-      
-      {/* Sticky Header Section - Contains Tab Navigation and Stats */}
-      <div className="sticky top-[30px] z-40 bg-[#fcfcfc]">
-        {/* Tab Navigation */}
-        <div className="bg-[#fcfcfc]/95 backdrop-blur-sm px-5 py-3 border-b border-[#e2e6e7]/30">
-          <div className="bg-[#ecf0f1] flex items-center pl-[2px] pr-[10px] py-[2px] rounded-[100px] w-full max-w-md mx-auto">
+      <div className="w-full h-full pb-24">
+        {/* Sticky Tab Navigation */}
+        <div className="sticky top-0 z-40 bg-[#fcfcfc]/95 backdrop-blur-sm px-5 py-3 pt-6 border-b border-[#e2e6e7]/30">
+          <div className="bg-[#ecf0f1] flex items-center gap-0 p-[2px] rounded-[100px] w-full max-w-md mx-auto">
+            {/* Tab buttons */}
             <button
               onClick={() => setActiveTab("my")}
-              className={`flex-1 h-[54.476px] flex items-center justify-center gap-3 px-7 py-[3px] rounded-[100px] font-bold text-[16px] transition-all ${
-                activeTab === "my"
-                  ? "bg-white text-[#2c3e50] shadow-sm"
-                  : "text-[#2c3e50]"
-              }`}
+              className="relative flex-1 h-[54.476px] flex items-center justify-center gap-3 px-7 py-[3px] rounded-[100px] font-bold text-[16px] text-[#2c3e50] transition-all"
             >
               {activeTab === "my" && (
-                <div className="relative size-5 flex-shrink-0">
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-white rounded-[100px] shadow-sm"
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30
+                  }}
+                />
+              )}
+              {activeTab === "my" && (
+                <div className="relative size-5 flex-shrink-0 z-10">
                   <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 19 25">
                     <path d="M0.5 3.5C0.500013 2.9734 0.638639 2.45609 0.901943 2.00004C1.16525 1.544 1.54395 1.1653 2 0.902V21.5C2 21.8978 2.15804 22.2794 2.43934 22.5607C2.72064 22.842 3.10218 23 3.5 23H15.5C15.8978 23 16.2794 22.842 16.5607 22.5607C16.842 22.2794 17 21.8978 17 21.5V3.5C17 3.10218 16.842 2.72064 16.5607 2.43934C16.2794 2.15804 15.8978 2 15.5 2H12.5V0.5H15.5C16.2956 0.5 17.0587 0.81607 17.6213 1.37868C18.1839 1.94129 18.5 2.70435 18.5 3.5V21.5C18.5 22.2956 18.1839 23.0587 17.6213 23.6213C17.0587 24.1839 16.2956 24.5 15.5 24.5H3.5C2.70435 24.5 1.94129 24.1839 1.37868 23.6213C0.81607 23.0587 0.5 22.2956 0.5 21.5V3.5ZM3.5 0.5V10.25C3.5 10.3893 3.53879 10.5258 3.61201 10.6443C3.68524 10.7628 3.79001 10.8585 3.91459 10.9208C4.03917 10.9831 4.17863 11.0095 4.31735 10.997C4.45608 10.9845 4.58857 10.9336 4.7 10.85L7.25 8.9375L9.8 10.85C9.91143 10.9336 10.0439 10.9845 10.1826 10.997C10.3214 11.0095 10.4608 10.9831 10.5854 10.9208C10.71 10.8585 10.8148 10.7628 10.888 10.6443C10.9612 10.5258 11 10.3893 11 10.25V0.5H3.5ZM5 8.75V2H9.5V8.75L7.7 7.4C7.57018 7.30263 7.41228 7.25 7.25 7.25C7.08772 7.25 6.92982 7.30263 6.8 7.4L5 8.75Z" fill="#2C3E50" stroke="#2C3E50" />
                   </svg>
                 </div>
               )}
-              <span className="whitespace-nowrap">My Course</span>
+              <span className="relative z-10 whitespace-nowrap">My Course</span>
             </button>
             <button
               onClick={() => setActiveTab("discover")}
-              className={`flex-1 h-[54.476px] flex items-center justify-center gap-3 px-7 py-[3px] rounded-[100px] font-bold text-[16px] transition-all ${
-                activeTab === "discover"
-                  ? "bg-white text-[#2c3e50] shadow-sm"
-                  : "text-[#2c3e50]"
-              }`}
+              className="relative flex-1 h-[54.476px] flex items-center justify-center gap-3 px-7 py-[3px] rounded-[100px] font-bold text-[16px] text-[#2c3e50] transition-all"
             >
-              <span className="whitespace-nowrap">Discover</span>
-              {activeTab === "discover" && <Search className="w-5 h-5" />}
+              {activeTab === "discover" && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-white rounded-[100px] shadow-sm"
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30
+                  }}
+                />
+              )}
+              <span className="relative z-10 whitespace-nowrap">Discover</span>
+              {activeTab === "discover" && <Search className="relative z-10 w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Course Stats - Only visible for "My Course" tab */}
-        {activeTab === "my" && (
-          <div className="bg-[#fcfcfc] px-5 sm:px-8 pt-5 pb-3">
-            <div className="flex gap-5 flex-wrap justify-center">
+        {/* Search Bar and Sorting - Only for Discover Tab */}
+        {activeTab === "discover" && (
+          <div className="px-5 pb-4 pt-4">
+            {/* Search Bar - Above sorting dropdown */}
+            <div className="mb-4 flex justify-center">
+              <div className="w-full max-w-md">
+                <div className="flex items-center gap-3 bg-white rounded-[100px] shadow-md border border-[#e2e6e7] py-3 px-5">
+                  <Search className="w-5 h-5 text-[#80646f] flex-shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Search courses..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-transparent text-[14px] text-[#2c3e50] placeholder-[#80646f] focus:outline-none min-w-0"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-end">
+              <div ref={dropdownRef} className="relative">
+                <button
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  className="flex gap-1 items-center justify-center px-3 py-2 rounded-[8px] hover:bg-[#E8F4FD] transition-all"
+                >
+                  <span className="text-[14px] font-bold text-[#2c3e50]">{currentSortLabel}</span>
+                  <div className="relative size-[15px]">
+                    <div className="absolute flex items-center justify-center left-[14.71%] right-[14.71%] top-1/2 translate-y-[-50%]">
+                      <motion.div
+                        className="size-[12px]"
+                        animate={{ rotate: showSortDropdown ? 90 : 270 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 7 12">
+                          <path d={svgPaths.p3314f5f0} fill="#2C3E50" stroke="#2C3E50" strokeWidth="0.5" />
+                        </svg>
+                      </motion.div>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {showSortDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-12 right-0 bg-white border border-[#e2e6e7] rounded-[12px] shadow-lg overflow-hidden z-50 min-w-[200px]"
+                    >
+                      {sortOptions.map((option, index) => (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            setSortBy(option.value as any);
+                            setShowSortDropdown(false);
+                          }}
+                          className={`w-full px-4 py-3 text-left text-[14px] transition-all ${
+                            sortBy === option.value
+                              ? "bg-[#4A90E2] text-white font-semibold"
+                              : "text-[#2c3e50] hover:bg-[#E8F4FD]"
+                          } ${index > 0 ? "border-t border-[#e2e6e7]" : ""}`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content Area */}
+        <div className="px-5 sm:px-8 pt-5">
+          {/* Course Stats */}
+          {activeTab === "my" && (
+            <div className="flex gap-5 mb-7 flex-wrap justify-center">
               <div className="flex-1 min-w-[150px] max-w-[170px] bg-white border border-[#e2e6e7] rounded-[12px] p-3 flex items-center gap-3">
                 <div className="relative size-[28px] flex-shrink-0">
                   <div className="absolute aspect-[19.8/26.4] left-[24.24%] right-[21.21%] top-[calc(50%+0.5px)] translate-y-[-50%]">

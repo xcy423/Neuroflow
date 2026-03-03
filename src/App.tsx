@@ -35,6 +35,7 @@ export default function App() {
   const [selectedWidget, setSelectedWidget] = useState<Widget["type"] | null>(null);
   const [activeChallenge, setActiveChallenge] = useState<ChallengeInfo | null>(null);
   const [showMoodModal, setShowMoodModal] = useState(false);
+  const [showCreateChallengeModal, setShowCreateChallengeModal] = useState(false);
   const [showWidgetCustomizer, setShowWidgetCustomizer] =
     useState(false);
   const [showStreakHistory, setShowStreakHistory] =
@@ -218,6 +219,7 @@ export default function App() {
         return (
           <EnhancedChallengesScreen
             onNavigateHome={handleBackToHome}
+            onCreateChallengeModalChange={setShowCreateChallengeModal}
             onOpenChallenge={(challenge) => {
               setActiveChallenge({
                 id: challenge.id,
@@ -286,8 +288,8 @@ export default function App() {
     }
   };
 
-  // Show bottom nav on all main pages except sanctuary and widget detail
-  const showBottomNav = ["home", "courses", "challenges", "profile"].includes(currentScreen);
+  // Show bottom nav on all main pages except sanctuary and widget detail, and hide when create challenge modal is open
+  const showBottomNav = ["home", "courses", "challenges", "profile"].includes(currentScreen) && !showCreateChallengeModal;
   const showMascot =
     userSettings.showMascot &&
     currentScreen !== "sanctuary" &&
