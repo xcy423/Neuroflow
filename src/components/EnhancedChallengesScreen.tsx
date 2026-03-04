@@ -387,15 +387,15 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
   const activeChallenges = getSortedChallenges();
   
   const sortOptions = [
-    { value: "time-asc", label: "Time (Least First)" },
-    { value: "time-desc", label: "Time (Most First)" },
-    { value: "points-high", label: "Points (High to Low)" },
-    { value: "points-low", label: "Points (Low to High)" },
+    { value: "time-asc", label: "Date" },
+    { value: "time-desc", label: "Date (Latest)" },
+    { value: "points-high", label: "Points (High-Low)" },
+    { value: "points-low", label: "Points (Low-High)" },
     { value: "title-az", label: "Title (A-Z)" },
     { value: "title-za", label: "Title (Z-A)" },
   ];
 
-  const currentSortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || "Time";
+  const currentSortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || "Date";
 
   const activeCount = challenges.filter(c => c.joined).length;
   const maxStreak = challenges.filter(c => c.joined).reduce((max, c) => {
@@ -444,7 +444,7 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
         <div className="h-[30px] bg-[#fcfcfc]" />
         
         {/* Tabs */}
-        <div className="sticky top-0 z-40 bg-[#fcfcfc]/95 backdrop-blur-sm px-5 py-3 pt-6 border-b border-[#e2e6e7]/30">
+        <div className="z-40 bg-[#fcfcfc]/95 backdrop-blur-sm pt-3 pb-3 border-b border-[#e2e6e7]/30" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
           <div className="bg-[#ecf0f1] flex items-center gap-0 p-[2px] rounded-[100px] w-full max-w-md mx-auto">
             <button
               onClick={() => setActiveTab("my")}
@@ -492,15 +492,16 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
         </div>
         {/* Active + Sort (only for My Challenges) */}
         {activeTab === "my" && (
-          <div className="px-5 pb-4">
+          <div className="pb-4" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
             <div className="flex items-center justify-between">
-              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-[24px] bg-white border border-[#e2e6e7] shadow-sm">
-                <div className="size-[20px] flex items-center justify-center rounded-full bg-[#2c3e50]">
-                  <svg className="size-[10px]" fill="none" viewBox="0 0 12 9">
-                    <path d="M1 4.7333L4.18164 8L11 1" stroke="#FCFCFC" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              <div className="inline-flex items-center gap-[8px] px-[12px] py-[4px] rounded-[8px]">
+                <div className="relative size-[20px] flex items-center justify-center">
+                  <svg className="block size-full" fill="none" viewBox="0 0 20 20">
+                    <path d="M10 10C11.0609 10 12.0783 9.57857 12.8284 8.82843C13.5786 8.07828 14 7.06087 14 6C14 4.93913 13.5786 3.92172 12.8284 3.17157C12.0783 2.42143 11.0609 2 10 2C8.93913 2 7.92172 2.42143 7.17157 3.17157C6.42143 3.92172 6 4.93913 6 6C6 7.06087 6.42143 8.07828 7.17157 8.82843C7.92172 9.57857 8.93913 10 10 10ZM3 18C3 18 2 18 2 17C2 16 3 13 10 13C17 13 18 16 18 17C18 18 17 18 17 18H3Z" fill="#2C3E50" />
                   </svg>
                 </div>
-                <span className="text-[14px] font-bold text-[#2c3e50]">Active: {activeCount}</span>
+                <span className="text-[16px] font-bold text-[#2c3e50]">{activeCount}</span>
+                <span className="text-[14px] font-medium text-[#2c3e50]">Active Challenges</span>
               </div>
 
               <div ref={dropdownRef} className="relative">
@@ -558,7 +559,7 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
 
         {/* Sorting for Discover */}
         {activeTab === "discover" && (
-          <div className="px-5 pb-4 pt-4">
+          <div className="pb-4 pt-4" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
             {/* Search Bar - Above sorting dropdown - Always visible */}
             <div className="mb-4 flex justify-center">
               {/* Search Bar with Plus Button inside */}
@@ -639,7 +640,7 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
       </div>
 
   {/* Cards Content (page scroll handles this) */}
-  <div className="px-5 sm:px-8 pt-6 pb-8">
+  <div className="pt-5 pb-8" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
 
         <AnimatePresence mode="wait">
           {activeTab === "my" ? (
@@ -649,83 +650,105 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="flex flex-col gap-6 pb-8"
+              className="flex flex-col gap-5 pb-6"
             >
 
               {/* Challenge Cards */}
-              {activeChallenges.map((challenge) => (
+              {activeChallenges.map((challenge) => {
+                const userDays = challenge.topUsers.find(u => u.name === "You")?.days ?? 0;
+                const progressPct = Math.min((userDays / 30) * 100, 100);
+                return (
                 <motion.div
                   key={challenge.id}
                   onClick={() => onOpenChallenge(challenge)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className={`bg-white rounded-[16px] border border-[#4a90e2] p-4 relative overflow-hidden cursor-pointer transition-all shadow-[2px_4px_20px_0px_inset_rgba(168,213,186,0.1)]`}
+                  className="bg-white flex flex-col gap-3 p-4 rounded-[16px] relative cursor-pointer select-none"
+                  style={{ boxShadow: "0px 0px 2px 0px white, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
                 >
-                  {/* Background decoration to match Courses */}
-                  <div className="absolute left-[-82px] top-[-24.48px] pointer-events-none opacity-50 mix-blend-multiply">
-                    <svg width="393" height="137" fill="none" viewBox="0 0 393 137">
-                      <path d={svgPaths.pb4d74c0} stroke="url(#paint0_radial)" strokeWidth="20" />
-                      <defs>
-                        <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(266.99 90.3718 -143.527 168.111 31.2421 23.3579)">
-                          <stop offset="0.117544" stopColor="#4A90E2" stopOpacity="0.3" />
-                          <stop offset="0.5" stopColor="white" stopOpacity="0.5" />
-                          <stop offset="1" stopColor="#4A90E2" stopOpacity="0.5" />
-                        </radialGradient>
-                      </defs>
-                    </svg>
-                  </div>
-
-                  {/* Card Header */}
-                  <div className="flex items-start gap-4 mb-3">
-                    <div className="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#E8F4FD] to-[#f0f0f0] flex items-center justify-center text-[24px] flex-shrink-0">
-                      {challenge.icon}
+                  {/* Top section: icon thumbnail + content — auto layout, fills full width */}
+                  <div className="flex gap-[12px] items-start w-full">
+                    {/* Icon thumbnail — self-stretch so it fills the height of the right column */}
+                    <div className="self-stretch aspect-square bg-[#ecf0f1] rounded-[8px] p-[8px] flex items-center justify-center flex-shrink-0 min-w-[38px]">
+                      <span className="text-[22px] leading-none">{challenge.icon}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-[16px] font-bold text-[#2c3e50] mb-1">
-                        {challenge.title}
-                      </h3>
-                      {/* Category label on left */}
-                      <div className="inline-flex px-1 py-0.5 rounded-[4px] bg-[rgba(168,213,186,0.2)]">
-                        <span className="text-[14px] font-semibold text-[#a8d5ba]">{challenge.category}</span>
-                      </div>
-                    </div>
-                    {/* Countdown and participants aligned right */}
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[rgba(245,166,35,0.15)]">
-                        <span className="text-[12px] font-bold text-[#f5a623]">{challenge.timeLeft} left</span>
-                        <span className="text-[12px]">🔥</span>
-                      </div>
-                      <div className="flex gap-1 items-center">
-                        <div className="size-[18px]">
-                          <svg className="block size-full" fill="none" viewBox="0 0 15 13">
-                            <path d={svgPaths.p35213980} stroke="#80646F" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </div>
-                        <span className="text-[14px] font-medium text-[#80646f]">{challenge.participants}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Description removed per request */}
-
-                  {/* Leaderboard preview (compact, no label, restored bg/padding alignment) */}
-                  <div className="bg-[#fcfcfc] rounded-[12px] p-3">
-                    <div className="flex items-center justify-between gap-2">
-                      {challenge.topUsers.map((user: ChallengeUser, index: number) => (
-                        <div key={index} className="flex items-center gap-2 min-w-0">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center text-white text-[10px] font-bold">
-                            {user.avatar || "👤"}
+                    {/* Right content — flex-1, stretches to fill remaining width */}
+                    <div className="flex-1 min-w-0 flex flex-col gap-[8px]">
+                      {/* Row 1: title + time-left */}
+                      <div className="flex items-center justify-between w-full">
+                        <h3 className="text-[16px] font-bold text-[#2c3e50] leading-[100%] flex-1 min-w-0 pr-[6px]">
+                          {challenge.title}
+                        </h3>
+                        <div className="flex items-center gap-[2px] flex-shrink-0">
+                          <span className="text-[12px] font-bold text-[#f5a623] whitespace-nowrap">{challenge.timeLeft} left!</span>
+                          {/* Flame SVG icon — matches Figma node I220:2302;21:168 */}
+                          <div className="relative size-[15px] flex-shrink-0">
+                            <svg className="absolute block size-full" viewBox="0 0 12 15" fill="none">
+                              <path d="M6 14C8.76142 14 11 11.7614 11 9C11 7 9.75 5.25 8.5 4C8.5 5.25 7.5 6 6.75 6C7.5 4.25 6.75 2 5 0.5C5 2 4.25 3.25 3 4.25C1.75 5.25 1 7 1 9C1 11.7614 3.23858 14 6 14Z" fill="#F5A623"/>
+                            </svg>
                           </div>
-                          <p className="text-[10px] font-bold text-[#2c3e50] truncate max-w-[80px]">{user.name}</p>
-                          <span className="text-[10px] font-bold text-[#F5A623] whitespace-nowrap">{user.days}d</span>
+                        </div>
+                      </div>
+                      {/* Row 2: category pill + points */}
+                      <div className="flex items-center justify-between w-full">
+                        {/* Category pill — exact Figma gradient */}
+                        <div
+                          className="inline-flex items-center justify-center px-[4px] py-[2px] rounded-[4px] shrink-0"
+                          style={{ background: "linear-gradient(90deg, rgba(168,213,186,0.2) 0%, rgba(168,213,186,0.2) 100%), linear-gradient(90deg, #fff 0%, #fff 100%)" }}
+                        >
+                          <span className="text-[14px] font-semibold text-[#a8d5ba]">{challenge.category}</span>
+                        </div>
+                        {/* Points with participants icon */}
+                        <div className="flex items-center gap-[4px] px-[4px] py-[2px] rounded-[4px]">
+                          <div className="overflow-clip relative size-[18px] flex-shrink-0">
+                            <svg className="absolute block size-full" fill="none" viewBox="0 0 15 13">
+                              <path d={svgPaths.p35213980} stroke="#2C3E50" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </div>
+                          <span className="text-[14px] font-medium text-[#2c3e50]">{challenge.points}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom section: progress bar (flex-1) + participant avatars */}
+                  <div className="flex items-center gap-[16px] w-full">
+                    {/* Progress bar — responsive flex-1, stacked layers like Figma */}
+                    <div className="relative flex-1 h-[8px]">
+                      {/* Track */}
+                      <div className="absolute inset-0 bg-[#e2e6e7] rounded-[100px] shadow-[0px_0px_12px_0px_rgba(255,255,255,0.5)]">
+                        <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_0px_4px_0px_rgba(255,255,255,0.3)]" />
+                      </div>
+                      {/* Fill */}
+                      <div
+                        className="absolute left-0 top-0 h-[8px] bg-[#4a90e2] rounded-[100px] shadow-[0px_0px_12px_0px_rgba(255,255,255,0.5)]"
+                        style={{ width: `${progressPct}%` }}
+                      >
+                        <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_0px_4px_0px_rgba(255,255,255,0.3)]" />
+                      </div>
+                    </div>
+                    {/* Participant avatars — gap-[12px] matching Figma */}
+                    <div className="flex items-center gap-[12px] flex-shrink-0">
+                      {challenge.topUsers.slice(0, 3).map((_user: ChallengeUser, index: number) => (
+                        <div key={index} className="relative size-[32px] flex-shrink-0">
+                          <svg className="absolute block size-full" fill="none" viewBox="0 0 32 32">
+                            <circle cx="16" cy="16" r="16" fill="#4a90e2" />
+                            <circle cx="16" cy="12" r="5" fill="white" />
+                            <path d="M5 28C5 23.0294 10.0294 19 16 19C21.9706 19 27 23.0294 27 28" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                          </svg>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Continue button removed; card tap navigates */}
+                  {/* Inner shadow overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none rounded-[16px]"
+                    style={{ boxShadow: "inset 0px 0px 4px 0px rgba(44,62,80,0.24)" }}
+                  />
                 </motion.div>
-              ))}
+                );
+              })}
             </motion.div>
           ) : (
             <motion.div
@@ -734,7 +757,7 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="flex flex-col gap-6 pb-8"
+              className="flex flex-col gap-5 pb-6"
             >
               {/* Discover challenges */}
               {activeChallenges.map((challenge) => (
@@ -743,59 +766,61 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
                   onClick={() => setSelectedDiscoverChallenge(challenge)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className={`bg-white rounded-[16px] border border-[#4a90e2] p-4 relative overflow-hidden cursor-pointer transition-all shadow-[2px_4px_20px_0px_inset_rgba(168,213,186,0.1)]`}
+                  className="bg-white flex flex-col gap-3 p-4 rounded-[16px] relative cursor-pointer select-none"
+                  style={{ boxShadow: "0px 0px 2px 0px white, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
                 >
-                  {/* Background decoration to match Courses */}
-                  <div className="absolute left-[-82px] top-[-24.48px] pointer-events-none opacity-50 mix-blend-multiply">
-                    <svg width="393" height="137" fill="none" viewBox="0 0 393 137">
-                      <path d={svgPaths.pb4d74c0} stroke="url(#paint0_radial)" strokeWidth="20" />
-                      <defs>
-                        <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(266.99 90.3718 -143.527 168.111 31.2421 23.3579)">
-                          <stop offset="0.117544" stopColor="#4A90E2" stopOpacity="0.3" />
-                          <stop offset="0.5" stopColor="white" stopOpacity="0.5" />
-                          <stop offset="1" stopColor="#4A90E2" stopOpacity="0.5" />
-                        </radialGradient>
-                      </defs>
-                    </svg>
-                  </div>
-                  <div className="flex items-start gap-4 mb-3">
-                    <div className="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#E8F4FD] to-[#f0f0f0] flex items-center justify-center text-[24px] flex-shrink-0">
-                      {challenge.icon}
+                  {/* Top section: same auto-layout as My Challenges cards */}
+                  <div className="flex gap-[12px] items-start w-full">
+                    {/* Icon thumbnail — self-stretch square */}
+                    <div className="self-stretch aspect-square bg-[#ecf0f1] rounded-[8px] p-[8px] flex items-center justify-center flex-shrink-0 min-w-[38px]">
+                      <span className="text-[22px] leading-none">{challenge.icon}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-[16px] font-bold text-[#2c3e50] mb-1">
-                        {challenge.title}
-                      </h3>
-                      {/* Category label on left */}
-                      <div className="inline-flex px-1 py-0.5 rounded-[4px] bg-[rgba(168,213,186,0.2)]">
-                        <span className="text-[14px] font-semibold text-[#a8d5ba]">{challenge.category}</span>
-                      </div>
-                    </div>
-                    {/* Countdown and participants aligned right */}
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[rgba(245,166,35,0.15)]">
-                        <span className="text-[12px] font-bold text-[#f5a623]">{challenge.timeLeft} left</span>
-                        <span className="text-[12px]">🔥</span>
-                      </div>
-                      <div className="flex gap-1 items-center">
-                        <div className="size-[18px]">
-                          <svg className="block size-full" fill="none" viewBox="0 0 15 13">
-                            <path d={svgPaths.p35213980} stroke="#80646F" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
+                    {/* Right content */}
+                    <div className="flex-1 min-w-0 flex flex-col gap-[8px]">
+                      {/* Row 1: title + time-left */}
+                      <div className="flex items-center justify-between w-full">
+                        <h3 className="text-[16px] font-bold text-[#2c3e50] leading-[100%] flex-1 min-w-0 pr-[6px]">
+                          {challenge.title}
+                        </h3>
+                        <div className="flex items-center gap-[2px] flex-shrink-0">
+                          <span className="text-[12px] font-bold text-[#f5a623] whitespace-nowrap">{challenge.timeLeft} left!</span>
+                          <div className="relative size-[15px] flex-shrink-0">
+                            <svg className="absolute block size-full" viewBox="0 0 12 15" fill="none">
+                              <path d="M6 14C8.76142 14 11 11.7614 11 9C11 7 9.75 5.25 8.5 4C8.5 5.25 7.5 6 6.75 6C7.5 4.25 6.75 2 5 0.5C5 2 4.25 3.25 3 4.25C1.75 5.25 1 7 1 9C1 11.7614 3.23858 14 6 14Z" fill="#F5A623"/>
+                            </svg>
+                          </div>
                         </div>
-                        <span className="text-[14px] font-medium text-[#80646f]">{challenge.participants}</span>
+                      </div>
+                      {/* Row 2: category pill + participants */}
+                      <div className="flex items-center justify-between w-full">
+                        <div
+                          className="inline-flex items-center justify-center px-[4px] py-[2px] rounded-[4px] shrink-0"
+                          style={{ background: "linear-gradient(90deg, rgba(168,213,186,0.2) 0%, rgba(168,213,186,0.2) 100%), linear-gradient(90deg, #fff 0%, #fff 100%)" }}
+                        >
+                          <span className="text-[14px] font-semibold text-[#a8d5ba]">{challenge.category}</span>
+                        </div>
+                        <div className="flex items-center gap-[4px] px-[4px] py-[2px] rounded-[4px]">
+                          <div className="overflow-clip relative size-[18px] flex-shrink-0">
+                            <svg className="absolute block size-full" fill="none" viewBox="0 0 15 13">
+                              <path d={svgPaths.p35213980} stroke="#2C3E50" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </div>
+                          <span className="text-[14px] font-medium text-[#2c3e50]">{challenge.participants}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Description instead of leaderboard for Discover */}
-                  <div className="mt-3">
-                    <p className="text-[13px] text-[#80646f] leading-relaxed">
-                      {challenge.description}
-                    </p>
-                  </div>
+                  {/* Description */}
+                  <p className="text-[13px] text-[#80646f] leading-relaxed">
+                    {challenge.description}
+                  </p>
 
-                  {/* Continue button removed; card tap navigates */}
+                  {/* Inner shadow overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none rounded-[16px]"
+                    style={{ boxShadow: "inset 0px 0px 4px 0px rgba(44,62,80,0.24)" }}
+                  />
                 </motion.div>
               ))}
             </motion.div>

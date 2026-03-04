@@ -106,7 +106,7 @@ export default function App() {
     }
   }, []);
 
-  const handleMoodSubmit = (mood: string, note?: string) => {
+  const handleMoodSubmit = (mood: string, drivers?: string[], note?: string) => {
     setMoodLogCount((prev) => prev + 1);
     setStreakDays((prev) => prev + 1);
     setShowMoodModal(false);

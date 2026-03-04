@@ -1,6 +1,33 @@
-import { User, Settings, Award, TrendingUp, Calendar, Edit2, Bell, Lock, Palette, LogOut, ChevronRight, X, Camera } from "lucide-react";
+import { Settings, ChevronRight, X, Camera } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
+// @ts-ignore
+import bearImg from "figma:asset/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
+
+// ── Reusable Off/On segmented toggle ──
+function OffOnToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div
+      className="flex rounded-[8px] overflow-hidden flex-shrink-0"
+      style={{ border: "1px solid #E2E6E7" }}
+    >
+      {([false, true] as const).map((opt) => (
+        <button
+          key={String(opt)}
+          onClick={() => onChange(opt)}
+          className="px-4 py-[7px] text-[13px] font-medium transition-all"
+          style={{
+            background: value === opt ? "#2c3e50" : "#fff",
+            color: value === opt ? "#fff" : "#2c3e50",
+            borderRight: !opt ? "1px solid #E2E6E7" : undefined,
+          }}
+        >
+          {opt ? "On" : "Off"}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 interface ProfileScreenProps {
   onNavigateHome: () => void;
@@ -13,11 +40,14 @@ export default function ProfileScreen({ onNavigateHome }: ProfileScreenProps) {
   const [userName, setUserName] = useState("Oliver Smith");
   const [tempUserName, setTempUserName] = useState("Oliver Smith");
 
-  const stats = [
-    { label: "Active Days", value: "23", icon: Calendar, color: "#4A90E2" },
-    { label: "Challenges", value: "5", icon: Award, color: "#F5A623" },
-    { label: "Courses", value: "8", icon: TrendingUp, color: "#A8D5BA" },
-  ];
+  // Settings state
+  const [appearance, setAppearance] = useState<"Auto" | "Light" | "Dark">("Auto");
+  const [textSize, setTextSize] = useState<"Small" | "Medium" | "Large">("Medium");
+  const [aiMode, setAiMode] = useState(false);
+  const [smartNudges, setSmartNudges] = useState(false);
+  const [dailyCheckIn, setDailyCheckIn] = useState(true);
+
+  const xpPercent = 62;
 
   const allAchievements = [
     { 
@@ -109,96 +139,127 @@ export default function ProfileScreen({ onNavigateHome }: ProfileScreenProps) {
   const recentAchievements = allAchievements.filter(a => a.unlocked).slice(0, 3);
 
   return (
-    <div className="bg-[#fcfcfc] relative w-full h-full">
-      {/* CRITICAL: Extra Top Spacing for Dynamic Island */}
-      <div className="h-[30px] bg-[#fcfcfc]" />
-      
-      <div className="pt-[20px] px-[32px] pb-24">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-[28px] font-bold text-[#2c3e50]">Profile</h1>
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="size-[40px] rounded-full bg-white border border-[#e2e6e7] flex items-center justify-center hover:bg-[#E8F4FD] transition-all"
-          >
-            <Settings className="text-[#4A90E2]" size={20} />
-          </button>
+    <div className="bg-[#f4f6f8] relative w-full h-full overflow-y-auto">
+      {/* DI Spacer */}
+      <div className="h-[30px] bg-[#f4f6f8]" />
+
+      <div
+        className="flex flex-col items-end w-full pb-32"
+        style={{ padding: "40px 32px 0 32px", gap: "20px" }}
+      >
+
+        {/* ── Settings icon (top-right, no title) ── */}
+        <button
+          onClick={() => setShowSettings(true)}
+          className="size-[40px] rounded-full bg-white flex items-center justify-center flex-shrink-0"
+          style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
+        >
+          <Settings size={20} className="text-[#2c3e50]" />
+        </button>
+
+        {/* ── Profile Card ── */}
+        <div
+          className="bg-white rounded-[20px] flex flex-col items-center px-6 pt-4 pb-6 w-full"
+          style={{ border: "1px solid #E2E6E7", boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
+        >
+          {/* Avatar with circle border */}
+          <div className="w-[80px] h-[80px] rounded-full border-2 border-[#2c3e50] flex items-center justify-center mb-3 overflow-hidden bg-[#ecf0f1]">
+            <svg viewBox="0 0 80 80" width="80" height="80" fill="none">
+              {/* Simple avatar illustration */}
+              <circle cx="40" cy="32" r="18" fill="#2c3e50" />
+              <ellipse cx="40" cy="72" rx="26" ry="18" fill="#2c3e50" />
+              {/* Hair */}
+              <path d="M22 28 Q24 14 40 16 Q56 14 58 28" fill="#1a252f" />
+              {/* Face highlight */}
+              <circle cx="40" cy="32" r="14" fill="#f5d6b8" />
+              {/* Eyes */}
+              <circle cx="35" cy="31" r="2" fill="#2c3e50" />
+              <circle cx="45" cy="31" r="2" fill="#2c3e50" />
+              {/* Mouth */}
+              <path d="M36 37 Q40 40 44 37" stroke="#2c3e50" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+            </svg>
+          </div>
+
+          {/* Name */}
+          <p className="text-[20px] font-bold text-[#2c3e50] mb-[2px]">{userName}</p>
+          {/* Level */}
+          <p className="text-[14px] text-[#868686] mb-4">Level 3 • Explorer</p>
+
+          {/* XP Progress Bar */}
+          <div className="w-full h-[8px] rounded-full bg-[#e2e6e7] overflow-hidden">
+            <div
+              className="h-full rounded-full bg-[#4A90E2]"
+              style={{ width: `${xpPercent}%` }}
+            />
+          </div>
         </div>
 
-        {/* Profile Card */}
-        <div className="bg-white border border-[#e2e6e7] rounded-[24px] p-6 mb-6 shadow-sm">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative">
-              <div className="size-[80px] rounded-full bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center text-white text-[32px] font-bold">
-                O
+        {/* ── Weekly Report Card ── */}
+        <div
+          className="bg-white rounded-[20px] px-6 py-5 w-full"
+          style={{ border: "1px solid #E2E6E7", boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
+        >
+          <p className="text-[16px] font-bold text-[#2c3e50] mb-[2px]">Weekly Report</p>
+          <p className="text-[12px] text-[#868686] mb-4">Feb 15–21</p>
+
+          <div className="flex items-stretch gap-0">
+            {/* Focus Flow Streak */}
+            <div className="flex-1 flex flex-col gap-[6px]">
+              <p className="text-[13px] font-semibold text-[#2c3e50]">Focus Flow Streak</p>
+              <p className="text-[14px] font-bold text-[#4A90E2]">5 Days 🔥</p>
+              <div className="flex items-center gap-[6px]">
+                {/* Up arrow */}
+                <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+                  <path d="M5.5 0L11 8H0L5.5 0Z" fill="#A8D5BA" />
+                </svg>
+                <span className="text-[12px] text-[#868686]">2 Days</span>
               </div>
-              <button 
-                onClick={() => setShowEditProfile(true)}
-                className="absolute -bottom-1 -right-1 size-8 rounded-full bg-[#4A90E2] border-2 border-white flex items-center justify-center hover:bg-[#3A80D2] transition-all shadow-md"
-              >
-                <Camera className="text-white" size={16} />
-              </button>
             </div>
-            <div className="flex-1">
-              <h2 className="text-[24px] font-bold text-[#2c3e50] mb-1">
-                {userName}
-              </h2>
-              <p className="text-[14px] text-[#868686]">Level 2 · 2558 pts</p>
-            </div>
-            <button
-              onClick={() => setShowEditProfile(true)}
-              className="p-2 rounded-full bg-[#E8F4FD] hover:bg-[#D0E7FA] transition-all"
-            >
-              <Edit2 className="text-[#4A90E2]" size={18} />
-            </button>
-          </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-4">
-            {stats.map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={stat.label}
-                  className="flex flex-col items-center gap-2 p-4 rounded-[16px] bg-[#fcfcfc]"
-                >
-                  <Icon size={24} style={{ color: stat.color }} />
-                  <p className="text-[20px] font-bold text-[#2c3e50]">
-                    {stat.value}
-                  </p>
-                  <p className="text-[12px] text-[#868686] text-center">
-                    {stat.label}
-                  </p>
-                </div>
-              );
-            })}
+            {/* Divider */}
+            <div className="w-[1px] bg-[#e2e6e7] mx-4 self-stretch" />
+
+            {/* Check in */}
+            <div className="flex-1 flex flex-col gap-[6px]">
+              <p className="text-[13px] font-semibold text-[#2c3e50]">Check in</p>
+              <p className="text-[14px] font-bold text-[#4A90E2]">12 times in last week</p>
+              <div className="flex items-center gap-[6px]">
+                <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+                  <path d="M5.5 0L11 8H0L5.5 0Z" fill="#A8D5BA" />
+                </svg>
+                <span className="text-[12px] text-[#868686]">11 times</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Achievements */}
-        <div className="bg-white border border-[#e2e6e7] rounded-[24px] p-6 mb-6 shadow-sm">
+        {/* ── Badges / Recent Achievements Card ── */}
+        <div
+          className="bg-white rounded-[20px] px-6 py-5 w-full"
+          style={{ border: "1px solid #E2E6E7", boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
+        >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[20px] font-bold text-[#2c3e50]">
-              Recent Achievements
-            </h3>
+            <p className="text-[16px] font-bold text-[#2c3e50]">Badges</p>
             <button
               onClick={() => setShowAllAchievements(true)}
-              className="text-[14px] text-[#4A90E2] font-semibold hover:underline"
+              className="flex items-center justify-center"
             >
-              View All
+              <ChevronRight size={20} className="text-[#868686]" />
             </button>
           </div>
+
+          {/* Recent achievements — existing row design */}
           <div className="space-y-3">
             {recentAchievements.map((achievement) => (
               <div
                 key={achievement.name}
-                className="flex items-center gap-4 p-3 rounded-[12px] bg-[#fcfcfc]"
+                className="flex items-center gap-4 p-3 rounded-[12px] bg-[#f4f6f8]"
               >
-                <div className="size-[48px] rounded-full bg-white border-2 border-[#A8D5BA] flex items-center justify-center text-2xl">
+                <div className="size-[48px] rounded-full bg-white border-2 border-[#A8D5BA] flex items-center justify-center text-2xl flex-shrink-0">
                   {achievement.icon}
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-[#2c3e50]">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-[#2c3e50] text-[14px]">
                     {achievement.name}
                   </p>
                   <p className="text-[12px] text-[#868686]">
@@ -210,157 +271,251 @@ export default function ProfileScreen({ onNavigateHome }: ProfileScreenProps) {
           </div>
         </div>
 
-        {/* Wellness Metrics */}
-        <div className="bg-white border border-[#e2e6e7] rounded-[24px] p-6 shadow-sm">
-          <h3 className="text-[20px] font-bold text-[#2c3e50] mb-4">
-            Weekly Summary
-          </h3>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-[14px] text-[#2c3e50]">
-                  Meditation Time
-                </span>
-                <span className="text-[14px] font-semibold text-[#4A90E2]">
-                  95 min
-                </span>
-              </div>
-              <div className="w-full h-3 bg-[#E8F4FD] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#4A90E2] rounded-full"
-                  style={{ width: "75%" }}
-                />
-              </div>
-            </div>
+        {/* ── Harmony Speech Bubble ── */}
+        <div className="flex flex-col items-start gap-0 w-full">
+          {/* Bubble */}
+          <div
+            className="relative px-5 py-4 rounded-[16px] max-w-[280px]"
+            style={{ background: "#fff", border: "1px solid #E2E6E7", boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
+          >
+            <p className="text-[13px] text-[#2c3e50] leading-snug">
+              Good to see you! Ready to check in and start your wellness journey today? 🌟
+            </p>
+            {/* Tail pointing down-left toward bear */}
+            <div
+              className="absolute -bottom-[9px] left-[24px] w-0 h-0"
+              style={{
+                borderLeft: "9px solid transparent",
+                borderRight: "0px solid transparent",
+                borderTop: "9px solid #E2E6E7",
+              }}
+            />
+            <div
+              className="absolute -bottom-[7px] left-[25px] w-0 h-0"
+              style={{
+                borderLeft: "8px solid transparent",
+                borderRight: "0px solid transparent",
+                borderTop: "8px solid #fff",
+              }}
+            />
+          </div>
 
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-[14px] text-[#2c3e50]">
-                  Steps Goal
-                </span>
-                <span className="text-[14px] font-semibold text-[#A8D5BA]">
-                  45,628
-                </span>
-              </div>
-              <div className="w-full h-3 bg-[#E8F4FD] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#A8D5BA] rounded-full"
-                  style={{ width: "82%" }}
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-[14px] text-[#2c3e50]">
-                  Sleep Quality
-                </span>
-                <span className="text-[14px] font-semibold text-[#F5A623]">
-                  78%
-                </span>
-              </div>
-              <div className="w-full h-3 bg-[#E8F4FD] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#F5A623] rounded-full"
-                  style={{ width: "78%" }}
-                />
-              </div>
-            </div>
+          {/* Bear */}
+          <div className="w-[64px] h-[64px] ml-2">
+            <img src={bearImg} alt="Harmony" className="w-full h-full object-contain" />
           </div>
         </div>
+
       </div>
 
-      {/* Settings Modal */}
+
+      {/* ─── Settings Full-Screen Page ─── */}
       <AnimatePresence>
         {showSettings && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-[60] flex items-end"
-            onClick={() => setShowSettings(false)}
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 bg-white z-[60] overflow-y-auto"
           >
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white w-full rounded-t-[24px] max-h-[80vh] overflow-y-auto pb-8"
+            {/* DI spacer */}
+            <div className="h-[30px]" />
+
+            {/* Back button */}
+            <div className="px-8 pt-4 pb-2">
+              <button
+                onClick={() => setShowSettings(false)}
+                className="flex items-center justify-center w-8 h-8"
+              >
+                <svg width="10" height="18" viewBox="0 0 10 18" fill="none">
+                  <path d="M9 1L1 9L9 17" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <div
+              className="flex flex-col items-center w-full pb-32"
+              style={{ padding: "40px 32px 0 32px", gap: "20px" }}
             >
-              {/* Header */}
-              <div className="sticky top-0 bg-white border-b border-[#e2e6e7] px-6 py-4 flex items-center justify-between">
-                <h2 className="text-[24px] font-bold text-[#2c3e50]">Settings</h2>
-                <button
-                  onClick={() => setShowSettings(false)}
-                  className="size-10 rounded-full bg-[#E8F4FD] hover:bg-[#D0E7FA] flex items-center justify-center transition-all"
-                >
-                  <X className="text-[#4A90E2]" size={20} />
-                </button>
+
+              {/* ── Preferences header ── */}
+              <div className="flex items-center gap-3 w-full">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle cx="6" cy="6" r="2" stroke="#2c3e50" strokeWidth="2"/>
+                  <path d="M6 2v2M6 8v14" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="18" cy="18" r="2" stroke="#2c3e50" strokeWidth="2"/>
+                  <path d="M18 2v14M18 20v2" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="12" cy="12" r="2" stroke="#2c3e50" strokeWidth="2"/>
+                  <path d="M12 2v8M12 14v8" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                <h2 className="text-[20px] font-bold text-[#2c3e50]">Preferences</h2>
               </div>
 
-              {/* Settings Options */}
-              <div className="px-6 pt-4 space-y-2">
-                <button className="w-full flex items-center justify-between p-4 rounded-[16px] bg-white border border-[#e2e6e7] hover:bg-[#E8F4FD] transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-[#E8F4FD] flex items-center justify-center">
-                      <Bell className="text-[#4A90E2]" size={20} />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-[#2c3e50]">Notifications</p>
-                      <p className="text-[12px] text-[#868686]">Manage your alerts</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="text-[#868686]" size={20} />
-                </button>
-
-                <button className="w-full flex items-center justify-between p-4 rounded-[16px] bg-white border border-[#e2e6e7] hover:bg-[#E8F4FD] transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-[#E8F4FD] flex items-center justify-center">
-                      <Lock className="text-[#4A90E2]" size={20} />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-[#2c3e50]">Privacy & Security</p>
-                      <p className="text-[12px] text-[#868686]">Control your data</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="text-[#868686]" size={20} />
-                </button>
-
-                <button className="w-full flex items-center justify-between p-4 rounded-[16px] bg-white border border-[#e2e6e7] hover:bg-[#E8F4FD] transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-[#E8F4FD] flex items-center justify-center">
-                      <Palette className="text-[#4A90E2]" size={20} />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-[#2c3e50]">Appearance</p>
-                      <p className="text-[12px] text-[#868686]">Theme and display</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="text-[#868686]" size={20} />
-                </button>
-
-                <button className="w-full flex items-center justify-between p-4 rounded-[16px] bg-white border border-[#e2e6e7] hover:bg-[#E8F4FD] transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-[#E8F4FD] flex items-center justify-center">
-                      <User className="text-[#4A90E2]" size={20} />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-[#2c3e50]">Account</p>
-                      <p className="text-[12px] text-[#868686]">Email, password, etc.</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="text-[#868686]" size={20} />
-                </button>
-
-                <div className="pt-4">
-                  <button className="w-full flex items-center justify-center gap-3 p-4 rounded-[16px] bg-red-50 border border-red-200 hover:bg-red-100 transition-all">
-                    <LogOut className="text-red-500" size={20} />
-                    <p className="font-semibold text-red-500">Log Out</p>
-                  </button>
+              {/* Appearance */}
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[15px] text-[#2c3e50]">Appearance</span>
+                <div className="flex rounded-[10px] overflow-hidden" style={{ border: "1px solid #E2E6E7" }}>
+                  {(["Auto", "Light", "Dark"] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => setAppearance(opt)}
+                      className="px-4 py-[7px] text-[13px] font-medium transition-all"
+                      style={{
+                        background: appearance === opt ? "#2c3e50" : "#fff",
+                        color: appearance === opt ? "#fff" : "#2c3e50",
+                        borderRight: opt !== "Dark" ? "1px solid #E2E6E7" : undefined,
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </motion.div>
+
+              {/* Text Size */}
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[15px] text-[#2c3e50]">Text Size</span>
+                <div className="flex rounded-[10px] overflow-hidden" style={{ border: "1px solid #E2E6E7" }}>
+                  {(["Small", "Medium", "Large"] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => setTextSize(opt)}
+                      className="px-4 py-[7px] transition-all"
+                      style={{
+                        background: textSize === opt ? "#2c3e50" : "#fff",
+                        color: textSize === opt ? "#fff" : "#2c3e50",
+                        fontSize: opt === "Small" ? "11px" : opt === "Medium" ? "13px" : "15px",
+                        fontWeight: opt === "Medium" ? 700 : 500,
+                        borderRight: opt !== "Large" ? "1px solid #E2E6E7" : undefined,
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Language */}
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[15px] text-[#2c3e50]">Language</span>
+                <button className="flex items-center gap-1 text-[14px] text-[#2c3e50]">
+                  English
+                  <ChevronRight size={16} className="text-[#868686]" />
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="h-[1px] bg-[#E2E6E7] w-full" />
+
+              {/* ── AI & Privacy header ── */}
+              <div className="flex items-center gap-3 w-full">
+                <svg width="20" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.35C17.25 23.15 21 18.25 21 13V7L12 2z" fill="#2c3e50"/>
+                  <circle cx="12" cy="13" r="2.5" fill="white"/>
+                  <path d="M12 9v1.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                <h2 className="text-[20px] font-bold text-[#2c3e50]">AI & Privacy</h2>
+              </div>
+
+              {/* AI Mode */}
+              <div className="flex items-start justify-between w-full">
+                <div className="flex-1 pr-4">
+                  <p className="text-[15px] font-semibold text-[#2c3e50]">AI Mode</p>
+                  <p className="text-[12px] text-[#868686] mt-[2px] italic">
+                    "Process data on-device for personalized insights"
+                  </p>
+                </div>
+                <OffOnToggle value={aiMode} onChange={setAiMode} />
+              </div>
+
+              {/* Smart Nudges */}
+              <div className="flex items-start justify-between w-full">
+                <div className="flex-1 pr-4">
+                  <p className="text-[15px] font-semibold text-[#2c3e50]">Smart Nudges</p>
+                  <p className="text-[12px] text-[#868686] mt-[2px] italic">
+                    "Only when stressed" (AI-driven)
+                  </p>
+                </div>
+                <OffOnToggle value={smartNudges} onChange={setSmartNudges} />
+              </div>
+
+              {/* App Lock */}
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[15px] text-[#2c3e50]">App Lock</span>
+                <button className="flex items-center gap-1 text-[14px] text-[#2c3e50]">
+                  Disabled
+                  <ChevronRight size={16} className="text-[#868686]" />
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="h-[1px] bg-[#E2E6E7] w-full" />
+
+              {/* ── Notifications header ── */}
+              <div className="flex items-center gap-3 w-full">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <h2 className="text-[20px] font-bold text-[#2c3e50]">Notifications</h2>
+              </div>
+
+              {/* Daily Check-in */}
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[15px] text-[#2c3e50]">Daily Check-in</span>
+                <OffOnToggle value={dailyCheckIn} onChange={setDailyCheckIn} />
+              </div>
+
+              {/* Alert Time */}
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <span className="text-[15px] text-[#2c3e50]">Alert Time</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="9" stroke="#2c3e50" strokeWidth="2"/>
+                    <path d="M12 7v5l3 3" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-[40px] h-[40px] rounded-[10px] flex items-center justify-center text-[16px] font-semibold text-[#2c3e50]"
+                    style={{ border: "1px solid #E2E6E7" }}
+                  >
+                    21
+                  </div>
+                  <div
+                    className="w-[40px] h-[40px] rounded-[10px] flex items-center justify-center text-[16px] font-semibold text-[#2c3e50]"
+                    style={{ border: "1px solid #E2E6E7" }}
+                  >
+                    00
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Harmony bear speech bubble ── */}
+              <div className="flex flex-col items-start w-full mt-4">
+                <div
+                  className="rounded-[16px] px-4 py-3 max-w-[80%] relative"
+                  style={{ background: "#fff", border: "1px solid #E2E6E7", boxShadow: "0px 0px 8px 0px rgba(44,62,80,0.08)" }}
+                >
+                  <p className="text-[13px] text-[#2c3e50] leading-[1.5]">
+                    Good to see you! Ready to check in and start your wellness journey today? 🌟
+                  </p>
+                  <div
+                    className="absolute -bottom-[9px] left-6 w-0 h-0"
+                    style={{ borderLeft: "8px solid transparent", borderRight: "8px solid transparent", borderTop: "9px solid #fff" }}
+                  />
+                  <div
+                    className="absolute -bottom-[10px] left-[22px] w-0 h-0"
+                    style={{ borderLeft: "10px solid transparent", borderRight: "10px solid transparent", borderTop: "10px solid #E2E6E7", zIndex: -1 }}
+                  />
+                </div>
+                <div className="w-[64px] h-[64px] ml-2 mt-1">
+                  <img src={bearImg} alt="Harmony" className="w-full h-full object-contain" />
+                </div>
+              </div>
+
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

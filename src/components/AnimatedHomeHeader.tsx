@@ -37,7 +37,7 @@ export default function AnimatedHomeHeader() {
   };
 
   return (
-    <div key={key} className="w-full bg-gradient-to-b from-[#4A90E2]/5 to-transparent px-6 pt-6 pb-4">
+    <div key={key} className="w-full bg-gradient-to-b from-[#4A90E2]/5 to-transparent pt-6 pb-4" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
       <div className="flex items-center gap-4">
         {/* Logo - Fades in with subtle scale */}
         <motion.div

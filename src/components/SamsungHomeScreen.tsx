@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, PanInfo } from "motion/react";
-import { Settings2, Flower2, TreePine, Grid3x3, Plus, Trash2, Check, X } from "lucide-react";
+import { Plus, Trash2, Check, X } from "lucide-react";
 import AnimatedHomeHeader from "./AnimatedHomeHeader";
 import svgPaths from "../imports/svg-crqz6vj79k";
 // Using a default emoji for stepsIcon since the figma asset import is invalid
@@ -160,19 +160,17 @@ export default function SamsungHomeScreen({
     const isSelected = selectedWidget === widgetId;
 
     switch (widgetId) {
-      case "streak":
-        // Mock mood data for the week (Sun-Sat)
+      case "streak": {
         const weekMoods = [
-          { emoji: "😊", filled: true, color: "#A8D5BA" }, // Sun - positive
-          { emoji: "😌", filled: true, color: "#B8D9F0" }, // Mon - calm
-          { emoji: "😊", filled: true, color: "#A8D5BA" }, // Tue - positive
-          { emoji: "😔", filled: true, color: "#C8DFED" }, // Wed - low
-          { emoji: "😊", filled: true, color: "#A8D5BA" }, // Thu - positive
-          { emoji: "😊", filled: true, color: "#A8D5BA" }, // Fri - positive
-          { emoji: "", filled: false, color: "#F5A623" },  // Sat (Today) - pending
+          { emoji: "🔥", filled: true },
+          { emoji: "🔥", filled: true },
+          { emoji: "🔥", filled: true },
+          { emoji: "🔥", filled: true },
+          { emoji: "", filled: false },
+          { emoji: "", filled: false },
+          { emoji: "", filled: false },
         ];
         const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        
         return (
           <motion.div
             layout
@@ -180,171 +178,52 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white border-2 rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] cursor-pointer relative ${
-              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
+            className={`bg-white rounded-[20px] p-5 cursor-pointer relative w-full ${
+              isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
-            style={{
-              padding: "28px",
-            }}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
           >
             {editMode && (
-              <button
-                onClick={() => handleRemoveWidget(widgetId)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10"
-              >
+              <button onClick={() => handleRemoveWidget(widgetId)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10">
                 <X className="w-4 h-4 text-white" />
               </button>
             )}
-            
-            {/* Main Content - Vertical Layout */}
-            <div className="flex flex-col gap-4">
-              {/* Top Row: Flame Icon + Streak Info */}
-              <div className="flex items-center gap-3">
-                {/* Flame Icon - Smaller */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.05, 1],
-                    filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="w-[48px] h-[48px] rounded-full flex items-center justify-center relative flex-shrink-0"
-                  style={{
-                    background: "linear-gradient(135deg, #F5A623 0%, #F8BC4A 100%)",
-                    boxShadow: "0 4px 20px rgba(245, 166, 35, 0.4), 0 0 40px rgba(245, 166, 35, 0.2)",
-                  }}
-                >
-                  <span className="text-[28px]">🔥</span>
-                </motion.div>
-
-                {/* Streak Number and Title */}
-                <div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[48px] font-bold text-[#2C3E50] leading-none tracking-tight" style={{ fontFamily: "Poppins, sans-serif" }}>
-                      {moodLogCount}
-                    </span>
-                    <span className="text-[18px] font-bold text-[#2C3E50]" style={{ fontFamily: "Poppins, sans-serif" }}>
-                      Days
-                    </span>
-                  </div>
-                  <p className="text-[14px] text-[#868686] mt-1">Mood Log Streak</p>
-                </div>
+            {/* Title row */}
+            <p className="text-[15px] font-bold text-[#2c3e50] mb-4">Mood Log Streak</p>
+            {/* Streak count + day circles side by side */}
+            <div className="flex items-center gap-3">
+              {/* Flame + count */}
+              <div className="flex flex-col items-center flex-shrink-0 mr-1">
+                <motion.span
+                  animate={{ scale: [1, 1.08, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="text-[32px] leading-none"
+                >🔥</motion.span>
+                <p className="text-[13px] font-bold text-[#2c3e50] mt-1">{moodLogCount} Days</p>
               </div>
-              {/* End of Top Row */}
-
-              {/* Bottom Row: Day Circles */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                    {weekMoods.map((mood, index) => {
-                      const isToday = index === 6;
-                      return (
-                        <motion.div
-                          key={index}
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="relative flex flex-col items-center"
-                        >
-                          {/* Day Circle */}
-                          <motion.div
-                            animate={
-                              mood.filled && !isToday
-                                ? {
-                                    scale: [1, 1.05, 1],
-                                  }
-                                : {}
-                            }
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              delay: index * 0.3,
-                              ease: "easeInOut",
-                            }}
-                            className={`w-10 h-10 rounded-full flex items-center justify-center text-[18px] transition-all ${
-                              isToday
-                                ? "border-3 border-[#F5A623] bg-white ring-4 ring-[#F5A623]/20"
-                                : mood.filled
-                                ? "border-2"
-                                : "border-2 border-[#F5A623] border-dashed"
-                            }`}
-                            style={{
-                              backgroundColor: mood.filled && !isToday ? mood.color : isToday ? "white" : "transparent",
-                              borderColor: mood.filled && !isToday ? mood.color : "#F5A623",
-                              boxShadow: isToday ? "0 0 20px rgba(245, 166, 35, 0.3)" : "none",
-                            }}
-                          >
-                            {mood.filled ? mood.emoji : ""}
-                            {isToday && (
-                              <motion.span
-                                animate={{ opacity: [0.5, 1, 0.5] }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                                className="text-[#F5A623] text-[20px]"
-                              >
-                                🔥
-                              </motion.span>
-                            )}
-                          </motion.div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Day Labels */}
-                  <div className="flex items-center gap-2">
-                    {dayLabels.map((label, index) => (
-                      <div key={index} className="w-10 text-center">
-                        <span className={`text-[9px] ${index === 6 ? "text-[#F5A623] font-semibold" : "text-[#b0b0b0]"}`}>
-                          {label}
-                        </span>
+              {/* Day circles */}
+              <div className="flex flex-col gap-1 flex-1">
+                <div className="flex items-center justify-between">
+                  {weekMoods.map((mood, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-[16px]"
+                        style={{
+                          background: mood.filled ? "#FFF3DC" : "transparent",
+                          border: mood.filled ? "1.5px solid #F5A623" : "1.5px dashed #d0d5d8",
+                        }}
+                      >
+                        {mood.filled ? mood.emoji : ""}
                       </div>
-                    ))}
-                  </div>
-                  
-                  {/* Today Label */}
-                  <div className="flex items-center justify-end" style={{ marginLeft: "calc(6 * 48px)" }}>
-                    <span className="text-[11px] text-[#F5A623] font-semibold">Today</span>
-                  </div>
+                      <span className="text-[9px] text-[#b0b0b0]">{dayLabels[i]}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            
-            {/* Bottom Left: Mascot Nudge - Clickable to log mood */}
-            <div 
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent widget click
-                onPlusClick();
-              }}
-              className="absolute bottom-4 left-4 flex items-center gap-2 cursor-pointer group"
-            >
-              {/* Mascot Emoji - on the left */}
-              <motion.div
-                animate={{
-                  y: [0, -4, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A8D5BA] to-[#4A90E2] flex items-center justify-center text-[16px] shadow-md group-hover:scale-110 transition-transform"
-              >
-                🌸
-              </motion.div>
-              
-              {/* Text Bubble - on the right */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="bg-white border border-[#e2e6e7] rounded-[12px] px-3 py-2 shadow-md group-hover:border-[#4A90E2] group-hover:shadow-lg transition-all"
-              >
-                <p className="text-[11px] text-[#4A90E2] font-semibold">Log today's mood?</p>
-              </motion.div>
             </div>
           </motion.div>
         );
+      }
 
       case "steps":
         return (
@@ -354,9 +233,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
-              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
+            className={`bg-white rounded-[20px] p-5 cursor-pointer relative w-full ${
+              isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
           >
             {editMode && (
               <button
@@ -446,9 +326,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white border-2 rounded-[16px] p-6 shadow-sm cursor-pointer relative ${
-              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
+            className={`bg-white rounded-[20px] p-5 cursor-pointer relative w-full ${
+              isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
           >
             {editMode && (
               <button
@@ -458,15 +339,17 @@ export default function SamsungHomeScreen({
                 <X className="w-4 h-4 text-white" />
               </button>
             )}
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-[16px] font-bold text-[#2c3e50]">Sleep Score</h3>
-                <p className="text-[12px] text-[#868686] mt-1">Last night</p>
+            {/* Header row — matches Figma */}
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-[15px] font-bold text-[#4A90E2]">Sleep Score</h3>
+                <span className="text-[18px] font-bold text-[#4A90E2]">78</span>
               </div>
-              <div className="text-right">
-                <p className="text-[28px] font-bold text-[#A8D5BA]">78</p>
-                <p className="text-[12px] text-[#868686]">7.5 hours</p>
-              </div>
+              <div className="w-9 h-9 rounded-full bg-[#e8f4fd] flex items-center justify-center text-[18px]">😴</div>
+            </div>
+            <div className="flex items-center gap-3 mb-4">
+              <p className="text-[13px] text-[#868686]">Actual Sleep</p>
+              <p className="text-[13px] font-semibold text-[#2c3e50]">7.5 h</p>
             </div>
 
             <div className="flex items-end justify-between h-20 gap-2">
@@ -497,9 +380,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
-              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
+            className={`bg-white rounded-[16px] p-5 cursor-pointer relative w-full ${
+              isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
           >
             {editMode && (
               <button
@@ -541,9 +425,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
-              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
+            className={`bg-white rounded-[16px] p-5 cursor-pointer relative w-full ${
+              isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
           >
             {editMode && (
               <button
@@ -581,9 +466,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white border-2 rounded-[16px] p-5 shadow-sm cursor-pointer relative ${
-              isSelected ? "border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : "border-[#e2e6e7]"
+            className={`bg-white rounded-[16px] p-5 cursor-pointer relative w-full ${
+              isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
           >
             {editMode && (
               <button
@@ -613,79 +499,51 @@ export default function SamsungHomeScreen({
   };
 
   return (
-  <div className="absolute inset-0 w-full min-h-screen bg-[#fcfcfc] overflow-x-hidden">
-      
-      {/* Combined Top Section: Dynamic Island Space + Greeting Bar - Sticky with 100% opacity */}
-      <div className="sticky top-0 z-40 bg-[#fcfcfc] backdrop-blur-sm">
-        {/* CRITICAL: Extra Top Spacing for Dynamic Island - Reduced to 30px */}
+  <div className="absolute inset-0 w-full min-h-screen bg-[#f4f6f8] overflow-x-hidden">
+
+      {/* Sticky top: DI + NeuroFlow + Greeting */}
+      <div className="sticky top-0 z-40 bg-[#f4f6f8]">
+        {/* DI spacer */}
         <div className="h-[30px]" />
-        
-        {/* Animated Header with Logo and Slogan */}
+
+        {/* NeuroFlow animated header */}
         <AnimatedHomeHeader />
-        
-        {/* Daily Goal Progress Bar */}
-        <div className="border-b border-[#e2e6e7]/50 px-5 pt-3 pb-5">
-          <div className="flex items-center justify-between">
-          {/* Left: Goal Progress */}
-          <div className="flex items-center gap-3 flex-1">
-            <div className="bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] rounded-full px-4 py-2 shadow-sm">
-              <p className="text-[14px] font-bold text-white">
-                {completedGoals}/{totalGoals} Goals
-              </p>
-            </div>
-            
-            {/* Progress Dots */}
-            <div className="flex items-center gap-1.5">
-              {dailyGoals.map((goal) => (
-                <div
-                  key={goal.id}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    goal.completed 
-                      ? "bg-[#A8D5BA] scale-110" 
-                      : "bg-[#e2e6e7]"
-                  }`}
-                  title={goal.label}
-                />
-              ))}
-            </div>
-            
-            {/* Completion indicator */}
-            {completedGoals === totalGoals && (
-              <span className="text-[14px]">✨</span>
-            )}
+
+        {/* Greeting row — matches Figma */}
+        <div className="flex items-center justify-between pb-4" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
+          {/* Good Morning pill */}
+          <div
+            className="flex items-center gap-2 bg-white rounded-full px-4 py-[10px]"
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: "1px solid #E2E6E7" }}
+          >
+            <span className="text-[18px]">☕</span>
+            <span className="text-[14px] font-semibold text-[#2c3e50]">Good Morning</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button className="w-9 h-9 rounded-full bg-white border border-[#e2e6e7] shadow-sm flex items-center justify-center hover:bg-[#E8F4FD] transition-all">
-              <Flower2 className="w-4 h-4 text-[#A8D5BA]" />
+          {/* Edit / Save button */}
+          {editMode ? (
+            <button
+              onClick={handleSaveLayout}
+              className="w-9 h-9 rounded-full bg-[#A8D5BA] shadow-sm flex items-center justify-center"
+            >
+              <Check className="w-4 h-4 text-white" />
             </button>
-            <button className="w-9 h-9 rounded-full bg-white border border-[#e2e6e7] shadow-sm flex items-center justify-center hover:bg-[#E8F4FD] transition-all">
-              <TreePine className="w-4 h-4 text-[#A8D5BA]" />
+          ) : (
+            <button
+              onClick={() => setEditMode(true)}
+              className="w-9 h-9 rounded-full bg-white flex items-center justify-center"
+              style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: "1px solid #E2E6E7" }}
+            >
+              {/* Pencil icon */}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </button>
-            <button className="w-9 h-9 rounded-full bg-white border border-[#e2e6e7] shadow-sm flex items-center justify-center hover:bg-[#E8F4FD] transition-all">
-              <Grid3x3 className="w-4 h-4 text-[#868686]" />
-            </button>
-            
-            {editMode ? (
-              <button
-                onClick={handleSaveLayout}
-                className="w-9 h-9 rounded-full bg-[#A8D5BA] shadow-md flex items-center justify-center hover:bg-[#98C5AA] transition-all ml-1"
-              >
-                <Check className="w-4 h-4 text-white" />
-              </button>
-            ) : (
-              <button
-                onClick={() => setEditMode(true)}
-                className="w-9 h-9 rounded-full bg-[#4A90E2] shadow-md flex items-center justify-center hover:bg-[#3A80D2] transition-all ml-1"
-              >
-                <Settings2 className="w-4 h-4 text-white" />
-              </button>
-            )}
-          </div>
-          </div>
+          )}
         </div>
       </div>
-      {/* End of sticky top section */}
+      {/* End sticky top */}
 
       {/* Edit Mode Instructions */}
       <AnimatePresence>
@@ -713,10 +571,10 @@ export default function SamsungHomeScreen({
           {[...Array(totalPages)].map((_, pageIndex) => (
             <div
               key={pageIndex}
-              className="w-full flex-shrink-0 pb-32 px-5 pt-8"
-            >
-              {/* Widgets for this page - 28px spacing between widgets */}
-              <div className="flex flex-col gap-[28px]">
+              className="w-full flex-shrink-0"
+              style={{ padding: "20px 32px 56px 32px" }}>
+              {/* Widgets — gap 20px, left-aligned */}
+              <div className="flex flex-col gap-5 items-start w-full">
                 <AnimatePresence mode="popLayout">
                   {getWidgetsByPage(pageIndex).map((position) => (
                     <div key={position.id}>
