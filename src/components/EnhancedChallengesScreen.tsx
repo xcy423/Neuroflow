@@ -444,62 +444,69 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
         <div className="h-[30px] bg-[#fcfcfc]" />
         
         {/* Tabs */}
-        <div className="z-40 bg-[#fcfcfc]/95 backdrop-blur-sm pt-3 pb-3 border-b border-[#e2e6e7]/30" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
-          <div className="bg-[#ecf0f1] flex items-center gap-0 p-[2px] rounded-[100px] w-full max-w-md mx-auto">
+        <div className="z-40 bg-[#fcfcfc]/95 backdrop-blur-sm pt-3 pb-5" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
+          {/* Figma: display flex, padding 2px, align-items center, gap -8px (overlap), flex 1 0 0, align-self stretch */}
+          <div
+            className="bg-[#ecf0f1] rounded-[100px] w-full max-w-md mx-auto"
+            style={{ display: "flex", padding: "2px", alignItems: "stretch", gap: "0px", height: "56px" }}
+          >
+            {/* My Challenges tab */}
             <button
               onClick={() => setActiveTab("my")}
-              className="relative flex-1 h-[54.476px] flex items-center justify-center gap-3 px-7 py-[3px] rounded-[100px] font-bold text-[16px] text-[#2c3e50] transition-all"
+              className="relative flex-1 h-full flex items-center justify-center gap-[12px] rounded-[100px] font-bold text-[16px] text-[#2c3e50] transition-all"
+              style={{ padding: "3px 28px" }}
             >
               {activeTab === "my" && (
                 <motion.div
                   layoutId="activeChallengeTab"
-                  className="absolute inset-0 bg-white rounded-[100px] shadow-sm"
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30
-                  }}
+                  className="absolute inset-0 bg-white rounded-[100px]"
+                  style={{ boxShadow: "0px 1px 3px 0px rgba(44,62,80,0.12)" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
-              {activeTab === "my" && (
-                <div className="relative size-5 flex-shrink-0 z-10">
-                  <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 19 25">
-                    <path d="M0.5 3.5C0.500013 2.9734 0.638639 2.45609 0.901943 2.00004C1.16525 1.544 1.54395 1.1653 2 0.902V21.5C2 21.8978 2.15804 22.2794 2.43934 22.5607C2.72064 22.842 3.10218 23 3.5 23H15.5C15.8978 23 16.2794 22.842 16.5607 22.5607C16.842 22.2794 17 21.8978 17 21.5V3.5C17 3.10218 16.842 2.72064 16.5607 2.43934C16.2794 2.15804 15.8978 2 15.5 2H12.5V0.5H15.5C16.2956 0.5 17.0587 0.81607 17.6213 1.37868C18.1839 1.94129 18.5 2.70435 18.5 3.5V21.5C18.5 22.2956 18.1839 23.0587 17.6213 23.6213C17.0587 24.1839 16.2956 24.5 15.5 24.5H3.5C2.70435 24.5 1.94129 24.1839 1.37868 23.6213C0.81607 23.0587 0.5 22.2956 0.5 21.5V3.5ZM3.5 0.5V10.25C3.5 10.3893 3.53879 10.5258 3.61201 10.6443C3.68524 10.7628 3.79001 10.8585 3.91459 10.9208C4.03917 10.9831 4.17863 11.0095 4.31735 10.997C4.45608 10.9845 4.58857 10.9336 4.7 10.85L7.25 8.9375L9.8 10.85C9.91143 10.9336 10.0439 10.9845 10.1826 10.997C10.3214 11.0095 10.4608 10.9831 10.5854 10.9208C10.71 10.8585 10.8148 10.7628 10.888 10.6443C10.9612 10.5258 11 10.3893 11 10.25V0.5H3.5ZM5 8.75V2H9.5V8.75L7.7 7.4C7.57018 7.30263 7.41228 7.25 7.25 7.25C7.08772 7.25 6.92982 7.30263 6.8 7.4L5 8.75Z" fill="#2C3E50" stroke="#2C3E50" />
-                  </svg>
-                </div>
-              )}
+              {/* Person/group icon — 24×24, always shown on My Challenges */}
+              <svg className="relative z-10 size-[20px] flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                <circle cx="9" cy="7" r="3.5" fill="#2C3E50" />
+                <path d="M2 20C2 16.134 5.13401 13 9 13C12.866 13 16 16.134 16 20" stroke="#2C3E50" strokeWidth="1.8" strokeLinecap="round" />
+                <circle cx="17" cy="8" r="2.5" fill="#2C3E50" />
+                <path d="M15 20C15 17.791 16.791 16 19 16C20.105 16 21.105 16.448 21.828 17.172" stroke="#2C3E50" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
               <span className="relative z-10 whitespace-nowrap">My Challenges</span>
             </button>
+            {/* Discover tab */}
             <button
               onClick={() => setActiveTab("discover")}
-              className="relative flex-1 h-[54.476px] flex items-center justify-center gap-3 px-7 py-[3px] rounded-[100px] font-bold text-[16px] text-[#2c3e50] transition-all"
+              className="relative flex-1 h-full flex items-center justify-center gap-[12px] rounded-[100px] font-bold text-[16px] text-[#2c3e50] transition-all"
+              style={{ padding: "3px 28px" }}
             >
               {activeTab === "discover" && (
                 <motion.div
                   layoutId="activeChallengeTab"
-                  className="absolute inset-0 bg-white rounded-[100px] shadow-sm"
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30
-                  }}
+                  className="absolute inset-0 bg-white rounded-[100px]"
+                  style={{ boxShadow: "0px 1px 3px 0px rgba(44,62,80,0.12)" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
               <span className="relative z-10 whitespace-nowrap">Discover</span>
-              {activeTab === "discover" && <Search className="relative z-10 w-5 h-5" />}
             </button>
           </div>
         </div>
         {/* Active + Sort (only for My Challenges) */}
         {activeTab === "my" && (
-          <div className="pb-4" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
+          <div className="pt-5 pb-0" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
             <div className="flex items-center justify-between">
               <div className="inline-flex items-center gap-[8px] px-[12px] py-[4px] rounded-[8px]">
-                <div className="relative size-[20px] flex items-center justify-center">
-                  <svg className="block size-full" fill="none" viewBox="0 0 20 20">
-                    <path d="M10 10C11.0609 10 12.0783 9.57857 12.8284 8.82843C13.5786 8.07828 14 7.06087 14 6C14 4.93913 13.5786 3.92172 12.8284 3.17157C12.0783 2.42143 11.0609 2 10 2C8.93913 2 7.92172 2.42143 7.17157 3.17157C6.42143 3.92172 6 4.93913 6 6C6 7.06087 6.42143 8.07828 7.17157 8.82843C7.92172 9.57857 8.93913 10 10 10ZM3 18C3 18 2 18 2 17C2 16 3 13 10 13C17 13 18 16 18 17C18 18 17 18 17 18H3Z" fill="#2C3E50" />
-                  </svg>
-                </div>
+                {/* Medal / achievement badge icon — Figma node 220-2283 */}
+                <svg className="size-[20px] flex-shrink-0" viewBox="0 0 20 20" fill="none">
+                  {/* Badge ribbon left */}
+                  <path d="M7 11.5L5 17L8 15.5L10 17.5L10 12" fill="#2C3E50" opacity="0.7"/>
+                  {/* Badge ribbon right */}
+                  <path d="M13 11.5L15 17L12 15.5L10 17.5L10 12" fill="#2C3E50" opacity="0.7"/>
+                  {/* Badge circle */}
+                  <circle cx="10" cy="8" r="5.5" fill="#2C3E50"/>
+                  {/* Star inside */}
+                  <path d="M10 5L10.9 7.1L13.2 7.4L11.6 8.9L12.1 11.2L10 10L7.9 11.2L8.4 8.9L6.8 7.4L9.1 7.1L10 5Z" fill="white"/>
+                </svg>
                 <span className="text-[16px] font-bold text-[#2c3e50]">{activeCount}</span>
                 <span className="text-[14px] font-medium text-[#2c3e50]">Active Challenges</span>
               </div>
@@ -663,25 +670,27 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
                   onClick={() => onOpenChallenge(challenge)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="bg-white flex flex-col gap-3 p-4 rounded-[16px] relative cursor-pointer select-none"
+                  className="bg-white flex flex-col items-start gap-3 p-4 rounded-[16px] relative cursor-pointer select-none w-full"
                   style={{ boxShadow: "0px 0px 2px 0px white, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
                 >
-                  {/* Top section: icon thumbnail + content — auto layout, fills full width */}
-                  <div className="flex gap-[12px] items-start w-full">
-                    {/* Icon thumbnail — self-stretch so it fills the height of the right column */}
-                    <div className="self-stretch aspect-square bg-[#ecf0f1] rounded-[8px] p-[8px] flex items-center justify-center flex-shrink-0 min-w-[38px]">
-                      <span className="text-[22px] leading-none">{challenge.icon}</span>
+                  {/* Top section: icon thumbnail + content — Figma Frame 73 + Frame 86, gap 12px */}
+                  <div className="flex gap-[12px] items-stretch w-full">
+                    {/* Icon container — Figma Frame 73: 54×54, inner padding 8px */}
+                    <div
+                      className="flex items-center justify-center flex-shrink-0 bg-[#ecf0f1] rounded-[8px]"
+                      style={{ width: "54px", height: "54px", padding: "8px" }}
+                    >
+                      <span className="text-[28px] leading-none">{challenge.icon}</span>
                     </div>
-                    {/* Right content — flex-1, stretches to fill remaining width */}
-                    <div className="flex-1 min-w-0 flex flex-col gap-[8px]">
-                      {/* Row 1: title + time-left */}
+                    {/* Right content — Figma Frame 86: flex-col justify-between, stretches to icon height */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      {/* Row 1: title + time-left — aligns with TOP of icon */}
                       <div className="flex items-center justify-between w-full">
                         <h3 className="text-[16px] font-bold text-[#2c3e50] leading-[100%] flex-1 min-w-0 pr-[6px]">
                           {challenge.title}
                         </h3>
                         <div className="flex items-center gap-[2px] flex-shrink-0">
                           <span className="text-[12px] font-bold text-[#f5a623] whitespace-nowrap">{challenge.timeLeft} left!</span>
-                          {/* Flame SVG icon — matches Figma node I220:2302;21:168 */}
                           <div className="relative size-[15px] flex-shrink-0">
                             <svg className="absolute block size-full" viewBox="0 0 12 15" fill="none">
                               <path d="M6 14C8.76142 14 11 11.7614 11 9C11 7 9.75 5.25 8.5 4C8.5 5.25 7.5 6 6.75 6C7.5 4.25 6.75 2 5 0.5C5 2 4.25 3.25 3 4.25C1.75 5.25 1 7 1 9C1 11.7614 3.23858 14 6 14Z" fill="#F5A623"/>
@@ -689,55 +698,135 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
                           </div>
                         </div>
                       </div>
-                      {/* Row 2: category pill + points */}
+                      {/* Row 2: category pill + participants — aligns with BOTTOM of icon */}
                       <div className="flex items-center justify-between w-full">
-                        {/* Category pill — exact Figma gradient */}
                         <div
                           className="inline-flex items-center justify-center px-[4px] py-[2px] rounded-[4px] shrink-0"
                           style={{ background: "linear-gradient(90deg, rgba(168,213,186,0.2) 0%, rgba(168,213,186,0.2) 100%), linear-gradient(90deg, #fff 0%, #fff 100%)" }}
                         >
                           <span className="text-[14px] font-semibold text-[#a8d5ba]">{challenge.category}</span>
                         </div>
-                        {/* Points with participants icon */}
                         <div className="flex items-center gap-[4px] px-[4px] py-[2px] rounded-[4px]">
-                          <div className="overflow-clip relative size-[18px] flex-shrink-0">
-                            <svg className="absolute block size-full" fill="none" viewBox="0 0 15 13">
-                              <path d={svgPaths.p35213980} stroke="#2C3E50" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </div>
-                          <span className="text-[14px] font-medium text-[#2c3e50]">{challenge.points}</span>
+                          {/* People / group icon */}
+                          <svg className="size-[18px] flex-shrink-0" viewBox="0 0 20 20" fill="none">
+                            <circle cx="7" cy="6.5" r="2.5" fill="#2C3E50" />
+                            <path d="M1.5 16C1.5 13.015 4.015 10.5 7 10.5" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" />
+                            <circle cx="13" cy="6.5" r="3" fill="#2C3E50" />
+                            <path d="M7 17C7 13.686 9.686 11 13 11C16.314 11 19 13.686 19 17" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                          <span className="text-[14px] font-medium text-[#2c3e50]">{challenge.participants}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Bottom section: progress bar (flex-1) + participant avatars */}
-                  <div className="flex items-center gap-[16px] w-full">
-                    {/* Progress bar — responsive flex-1, stacked layers like Figma */}
-                    <div className="relative flex-1 h-[8px]">
-                      {/* Track */}
-                      <div className="absolute inset-0 bg-[#e2e6e7] rounded-[100px] shadow-[0px_0px_12px_0px_rgba(255,255,255,0.5)]">
-                        <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_0px_4px_0px_rgba(255,255,255,0.3)]" />
-                      </div>
-                      {/* Fill */}
-                      <div
-                        className="absolute left-0 top-0 h-[8px] bg-[#4a90e2] rounded-[100px] shadow-[0px_0px_12px_0px_rgba(255,255,255,0.5)]"
-                        style={{ width: `${progressPct}%` }}
-                      >
-                        <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_0px_4px_0px_rgba(255,255,255,0.3)]" />
-                      </div>
+                  {/* Progress + Top 3 section */}
+                  <div className="flex flex-col gap-[8px] w-full">
+                    {/* Progress label row */}
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-[11px] font-semibold text-[#4a90e2]">Your Progress</span>
+                      <span className="text-[11px] font-bold text-[#4a90e2]">{userDays} / 30 days</span>
                     </div>
-                    {/* Participant avatars — gap-[12px] matching Figma */}
-                    <div className="flex items-center gap-[12px] flex-shrink-0">
-                      {challenge.topUsers.slice(0, 3).map((_user: ChallengeUser, index: number) => (
-                        <div key={index} className="relative size-[32px] flex-shrink-0">
-                          <svg className="absolute block size-full" fill="none" viewBox="0 0 32 32">
-                            <circle cx="16" cy="16" r="16" fill="#4a90e2" />
-                            <circle cx="16" cy="12" r="5" fill="white" />
-                            <path d="M5 28C5 23.0294 10.0294 19 16 19C21.9706 19 27 23.0294 27 28" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                          </svg>
+                    {/* Progress bar + top 3 avatars side by side */}
+                    <div className="flex items-center gap-[20px] w-full">
+                      {/* Progress bar — padded right so track doesn't crowd the avatars */}
+                      <div className="flex-1 min-w-0" style={{ paddingTop: "22px", paddingRight: "18px" }}>
+                        {/* Outer: overflow visible so badge + glow dot can escape */}
+                        <div className="relative w-full" style={{ height: "6px", overflow: "visible" }}>
+                          {/* Gray track — full width, always visible */}
+                          <div
+                            className="absolute inset-0 rounded-[100px]"
+                            style={{
+                              background: "#E2E6E7",
+                              boxShadow: "inset 0px 1px 3px rgba(0,0,0,0.08)",
+                            }}
+                          />
+                          {/* Fill wrapper — clips fill to track bounds */}
+                          <div
+                            className="absolute inset-0 rounded-[100px]"
+                            style={{ overflow: "hidden" }}
+                          >
+                            <motion.div
+                              className="absolute left-0 top-0 bottom-0 rounded-[100px]"
+                              style={{
+                                background: "linear-gradient(90deg, #4A90E2 0%, #A8D5BA 100%)",
+                              }}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${progressPct}%` }}
+                              transition={{ duration: 0.9, ease: "easeOut" }}
+                            />
+                          </div>
+                          {/* Glow dot + % badge — positioned absolutely relative to outer, tracks fill tip */}
+                          <motion.div
+                            className="absolute top-0 bottom-0"
+                            style={{ left: 0, width: `${progressPct}%`, overflow: "visible" }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progressPct}%` }}
+                            transition={{ duration: 0.9, ease: "easeOut" }}
+                          >
+                            {/* Glow dot */}
+                            <div
+                              className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 rounded-full"
+                              style={{
+                                width: "10px",
+                                height: "10px",
+                                background: "#4A90E2",
+                                boxShadow: "0px 0px 6px 2px rgba(74,144,226,0.55)",
+                              }}
+                            />
+                            {/* Floating % pill badge */}
+                            <motion.div
+                              className="absolute flex items-center justify-center bg-white rounded-[100px]"
+                              style={{
+                                top: "-20px",
+                                right: "0px",
+                                transform: "translateX(50%)",
+                                padding: "1px 5px",
+                                minWidth: "28px",
+                                border: "1px solid #D0D8E0",
+                                boxShadow: "0px 1px 4px 0px rgba(74,144,226,0.30)",
+                              }}
+                              initial={{ opacity: 0, scale: 0.6 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.35, delay: 0.75 }}
+                            >
+                              <span style={{ fontSize: "9px", fontWeight: 700, color: "#4A90E2", lineHeight: "14px", whiteSpace: "nowrap" }}>
+                                {Math.round(progressPct)}%
+                              </span>
+                            </motion.div>
+                          </motion.div>
                         </div>
-                      ))}
+                      </div>
+                      {/* Top 3 avatar icons — 32×32, 12px gap, "You" highlighted */}
+                      <div className="flex items-center flex-shrink-0 gap-[12px]">
+                        {challenge.topUsers.slice(0, 3).map((user: ChallengeUser, index: number) => {
+                          const rankColors = ["#F5A623", "#A8A8B3", "#CD7F32"];
+                          const isYou = user.name === "You";
+                          return (
+                            <div
+                              key={index}
+                              className="relative size-[32px] flex-shrink-0 rounded-full flex items-center justify-center"
+                              style={{
+                                background: isYou ? "#c2d9f5" : "#d8e4f0",
+                                border: isYou ? "1.5px solid #4A90E2" : "1.5px solid transparent",
+                              }}
+                              title={`#${index + 1} ${user.name} — ${user.days}d`}
+                            >
+                              <svg className="size-[18px]" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="4" fill="#4a90e2" />
+                                <path d="M4 20C4 16.134 7.58172 13 12 13C16.4183 13 20 16.134 20 20" stroke="#4a90e2" strokeWidth="2" strokeLinecap="round" />
+                              </svg>
+                              {/* Rank badge — gold / silver / bronze */}
+                              <div
+                                className="absolute -top-[5px] -right-[4px] size-[14px] rounded-full flex items-center justify-center"
+                                style={{ background: rankColors[index], boxShadow: "0px 1px 3px rgba(0,0,0,0.22)" }}
+                              >
+                                <span className="text-[8px] font-bold text-white leading-none">{index + 1}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 
@@ -769,15 +858,18 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
                   className="bg-white flex flex-col gap-3 p-4 rounded-[16px] relative cursor-pointer select-none"
                   style={{ boxShadow: "0px 0px 2px 0px white, 0px 0px 12px 0px rgba(44,62,80,0.12)" }}
                 >
-                  {/* Top section: same auto-layout as My Challenges cards */}
-                  <div className="flex gap-[12px] items-start w-full">
-                    {/* Icon thumbnail — self-stretch square */}
-                    <div className="self-stretch aspect-square bg-[#ecf0f1] rounded-[8px] p-[8px] flex items-center justify-center flex-shrink-0 min-w-[38px]">
-                      <span className="text-[22px] leading-none">{challenge.icon}</span>
+                  {/* Top section: same auto-layout as My Challenges cards — Figma Frame 73 + Frame 86, gap 12px */}
+                  <div className="flex gap-[12px] items-stretch w-full">
+                    {/* Icon container — Figma Frame 73: 54×54, inner padding 8px */}
+                    <div
+                      className="flex items-center justify-center flex-shrink-0 bg-[#ecf0f1] rounded-[8px]"
+                      style={{ width: "54px", height: "54px", padding: "8px" }}
+                    >
+                      <span className="text-[28px] leading-none">{challenge.icon}</span>
                     </div>
-                    {/* Right content */}
-                    <div className="flex-1 min-w-0 flex flex-col gap-[8px]">
-                      {/* Row 1: title + time-left */}
+                    {/* Right content — Figma Frame 86: flex-col justify-between, stretches to icon height */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      {/* Row 1: title + time-left — aligns with TOP of icon */}
                       <div className="flex items-center justify-between w-full">
                         <h3 className="text-[16px] font-bold text-[#2c3e50] leading-[100%] flex-1 min-w-0 pr-[6px]">
                           {challenge.title}
@@ -791,7 +883,7 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
                           </div>
                         </div>
                       </div>
-                      {/* Row 2: category pill + participants */}
+                      {/* Row 2: category pill + participants — aligns with BOTTOM of icon */}
                       <div className="flex items-center justify-between w-full">
                         <div
                           className="inline-flex items-center justify-center px-[4px] py-[2px] rounded-[4px] shrink-0"
@@ -800,11 +892,13 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
                           <span className="text-[14px] font-semibold text-[#a8d5ba]">{challenge.category}</span>
                         </div>
                         <div className="flex items-center gap-[4px] px-[4px] py-[2px] rounded-[4px]">
-                          <div className="overflow-clip relative size-[18px] flex-shrink-0">
-                            <svg className="absolute block size-full" fill="none" viewBox="0 0 15 13">
-                              <path d={svgPaths.p35213980} stroke="#2C3E50" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </div>
+                          {/* People / group icon */}
+                          <svg className="size-[18px] flex-shrink-0" viewBox="0 0 20 20" fill="none">
+                            <circle cx="7" cy="6.5" r="2.5" fill="#2C3E50" />
+                            <path d="M1.5 16C1.5 13.015 4.015 10.5 7 10.5" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" />
+                            <circle cx="13" cy="6.5" r="3" fill="#2C3E50" />
+                            <path d="M7 17C7 13.686 9.686 11 13 11C16.314 11 19 13.686 19 17" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
                           <span className="text-[14px] font-medium text-[#2c3e50]">{challenge.participants}</span>
                         </div>
                       </div>

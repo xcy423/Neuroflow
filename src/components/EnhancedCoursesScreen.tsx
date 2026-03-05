@@ -533,9 +533,9 @@ export default function EnhancedCoursesScreen({ onNavigateHome }: EnhancedCourse
                   />
 
                   {/* Main content row */}
-                  <div className="flex items-start justify-between w-full" style={{ height: "114.312px" }}>
+                  <div className="flex items-stretch justify-between w-full">
                     {/* Left: title / tags / description — justify-between for equal auto spacing */}
-                    <div className="flex flex-col items-start justify-between self-stretch shrink-0" style={{ maxWidth: "calc(100% - 108px)" }}>
+                    <div className="flex flex-col items-start justify-between self-stretch flex-1 min-w-0 pr-3">
                       {/* Title */}
                       <span
                         className="font-bold text-[16px] text-black whitespace-nowrap overflow-hidden text-ellipsis"

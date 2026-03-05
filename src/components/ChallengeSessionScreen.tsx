@@ -12,6 +12,14 @@ interface ChallengeSessionScreenProps {
 export default function ChallengeSessionScreen({ challenge, onBack, onCompleteToday }: ChallengeSessionScreenProps) {
   const [completedToday, setCompletedToday] = useState(false);
 
+  // Progress ring calculations
+  const userRank = challenge.topUsers?.find((u: ChallengeUserRank) => u.name === "You");
+  const userDays = userRank?.days ?? 0;
+  const totalDays = 30;
+  const progressPct = Math.min((userDays / totalDays) * 100, 100);
+  const ringRadius = 40;
+  const ringCircumference = 2 * Math.PI * ringRadius; // ≈ 251.33
+
   const handleComplete = () => {
     if (!completedToday) {
       setCompletedToday(true);
@@ -92,6 +100,100 @@ export default function ChallengeSessionScreen({ challenge, onBack, onCompleteTo
                   </svg>
                 </div>
                 <span className="text-[13px] font-medium text-[#2c3e50]">{challenge.participants}</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Your Progress Ring */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.05 }}
+          className="bg-white rounded-[16px] border border-[#e2e6e7] p-4 mb-6"
+        >
+          <h4 className="text-[15px] font-bold text-[#2c3e50] mb-4">Your Progress</h4>
+          <div className="flex items-center gap-5">
+            {/* Animated SVG ring */}
+            <div className="relative flex-shrink-0" style={{ width: 100, height: 100 }}>
+              <svg width="100" height="100" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
+                {/* Gray track */}
+                <circle
+                  cx="50" cy="50" r={ringRadius}
+                  fill="none"
+                  stroke="#E2E6E7"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                />
+                {/* Animated fill */}
+                <motion.circle
+                  cx="50" cy="50" r={ringRadius}
+                  fill="none"
+                  stroke="url(#ringGradient)"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={ringCircumference}
+                  initial={{ strokeDashoffset: ringCircumference }}
+                  animate={{ strokeDashoffset: ringCircumference - (progressPct / 100) * ringCircumference }}
+                  transition={{ duration: 1.1, ease: "easeOut", delay: 0.2 }}
+                />
+                <defs>
+                  <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#4A90E2" />
+                    <stop offset="100%" stopColor="#A8D5BA" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              {/* Center label */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <motion.span
+                  className="text-[20px] font-bold text-[#4a90e2] leading-none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  {Math.round(progressPct)}%
+                </motion.span>
+                <span className="text-[9px] font-medium text-[#80646f] mt-0.5">done</span>
+              </div>
+            </div>
+            {/* Stats beside ring */}
+            <div className="flex flex-col gap-3 flex-1">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[11px] font-medium text-[#80646f]">Days Completed</span>
+                <span className="text-[18px] font-bold text-[#2c3e50]">{userDays} <span className="text-[13px] font-medium text-[#80646f]">/ {totalDays} days</span></span>
+              </div>
+              {/* Mini linear bar */}
+              <div className="flex flex-col gap-1.5">
+                <div className="relative h-[6px] w-full rounded-[100px] bg-[#E2E6E7]" style={{ overflow: "visible" }}>
+                  <div className="absolute inset-0 rounded-[100px]" style={{ overflow: "hidden" }}>
+                    <motion.div
+                      className="absolute left-0 top-0 bottom-0 rounded-[100px]"
+                      style={{ background: "linear-gradient(90deg, #4A90E2 0%, #A8D5BA 100%)" }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPct}%` }}
+                      transition={{ duration: 1.1, ease: "easeOut", delay: 0.2 }}
+                    />
+                  </div>
+                  {/* Glow dot */}
+                  <motion.div
+                    className="absolute top-1/2 -translate-y-1/2 rounded-full"
+                    style={{
+                      width: 10, height: 10,
+                      background: "#4A90E2",
+                      boxShadow: "0px 0px 6px 2px rgba(74,144,226,0.55)",
+                      right: `${100 - progressPct}%`,
+                      transform: "translateY(-50%) translateX(50%)",
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.9 }}
+                  />
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[10px] text-[#80646f]">Start</span>
+                  <span className="text-[10px] text-[#80646f]">Goal</span>
+                </div>
               </div>
             </div>
           </div>

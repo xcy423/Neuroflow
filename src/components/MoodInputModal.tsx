@@ -3,18 +3,31 @@ import { motion, AnimatePresence } from "motion/react";
 // @ts-ignore – resolved by vite alias at runtime
 import bearImg from "figma:asset/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
 
+// Bear emotion images — already bundled from Figma assets, work on all devices
+import bearDrainedImg   from "../assets/71d2e20f8f76af16ab89c71d15e53ecbbc180be0.png";
+import bearLowImg       from "../assets/7ed7035b041b2e9e1af5382074bbb88898e185fb.png";
+import bearBalancedImg  from "../assets/26a8ddd33b7fbb93d26257cc8df3e6ad63ad4ed5.png";
+import bearEnergizedImg from "../assets/505ee940af5e200221c143f10602c6167666e596.png";
+import bearCrushingImg  from "../assets/000885b7c4e9d58a4aae5da67f617c7a43aa4705.png";
+const bearDrained   = bearDrainedImg;
+const bearLow       = bearLowImg;
+const bearBalanced  = bearBalancedImg;
+const bearEnergized = bearEnergizedImg;
+const bearCrushing  = bearCrushingImg;
+
 interface MoodInputModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (mood: string, drivers?: string[], note?: string) => void;
 }
 
-const ENERGY_LEVELS = [
-  { id: "drained",   label: "Drained",     emoji: "😴", color: "#8D9DB6" },
-  { id: "low",       label: "Low Energy",  emoji: "😔", color: "#A8A8B3" },
-  { id: "balanced",  label: "Balanced",    emoji: "😐", color: "#F5C842" },
-  { id: "energized", label: "Energized",   emoji: "😊", color: "#F5A623" },
-  { id: "crushing",  label: "Crushing It", emoji: "🤩", color: "#F5A623" },
+// Bear images are assigned after import declarations
+const ENERGY_LEVELS_DATA = [
+  { id: "drained",   label: "Drained",     color: "#8D9DB6" },
+  { id: "low",       label: "Low Energy",  color: "#A8A8B3" },
+  { id: "balanced",  label: "Balanced",    color: "#F5C842" },
+  { id: "energized", label: "Energized",   color: "#F5A623" },
+  { id: "crushing",  label: "Crushing It", color: "#4A90E2" },
 ];
 
 const DRIVERS = [
@@ -24,6 +37,14 @@ const DRIVERS = [
   "Sleep",
   "Relationships",
   "Nutrition",
+];
+
+const ENERGY_LEVELS = [
+  { ...ENERGY_LEVELS_DATA[0], bear: bearDrained },
+  { ...ENERGY_LEVELS_DATA[1], bear: bearLow },
+  { ...ENERGY_LEVELS_DATA[2], bear: bearBalanced },
+  { ...ENERGY_LEVELS_DATA[3], bear: bearEnergized },
+  { ...ENERGY_LEVELS_DATA[4], bear: bearCrushing },
 ];
 
 export default function MoodInputModal({
@@ -65,13 +86,13 @@ export default function MoodInputModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-end">
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center">
       <motion.div
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="bg-white w-full max-w-[440px] mx-auto overflow-y-auto max-h-[92vh] flex flex-col items-center justify-center"
+        className="bg-white w-full max-w-[440px] overflow-y-auto max-h-[92vh] flex flex-col items-center"
         style={{
           borderRadius: "60px 60px 0 0",
           border: "2px solid #E2E6E7",
@@ -116,6 +137,21 @@ export default function MoodInputModal({
           </div>
         </div>
 
+        {/* ── Inner Card ── */}
+        <div
+          className="w-full flex flex-col"
+          style={{
+            borderRadius: "16px",
+            background: "#FCFCFC",
+            boxShadow: "0 0 4px 0 rgba(0, 0, 0, 0.10)",
+            padding: "16px 12px",
+            gap: "20px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+          }}
+        >
+
         {/* ── Energy Section ── */}
         <div className="w-full">
           <p className="text-[16px] font-bold text-[#2c3e50] mb-4">
@@ -148,7 +184,7 @@ export default function MoodInputModal({
                     animate={{ width: size, height: size }}
                     transition={{ type: "spring", damping: 20, stiffness: 300 }}
                     onClick={() => setSelectedEnergy(level.id)}
-                    className="flex-shrink-0 rounded-full flex items-center justify-center overflow-hidden select-none"
+                    className="flex-shrink-0 rounded-full flex items-center justify-center overflow-hidden select-none p-[3px]"
                     style={{
                       background: isSelected
                         ? `radial-gradient(circle, ${level.color}35 0%, ${level.color}15 100%)`
@@ -156,10 +192,14 @@ export default function MoodInputModal({
                       boxShadow: isSelected
                         ? `0px 0px 0px 3px ${level.color}60, 0px 4px 12px ${level.color}40`
                         : "none",
-                      fontSize: isSelected ? 28 : 18,
                     }}
                   >
-                    {level.emoji}
+                    <img
+                      src={level.bear}
+                      alt={level.label}
+                      className="w-full h-full object-contain"
+                      draggable={false}
+                    />
                   </motion.button>
                 </div>
               );
@@ -288,6 +328,8 @@ export default function MoodInputModal({
             </AnimatePresence>
           </div>
         </div>
+
+        </div>{/* end inner card */}
 
         {/* ── Footer Buttons ── */}
         <div className="flex gap-3 w-full">

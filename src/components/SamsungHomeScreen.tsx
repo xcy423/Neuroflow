@@ -178,10 +178,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white rounded-[20px] p-5 cursor-pointer relative w-full ${
+            className={`bg-white rounded-[20px] cursor-pointer relative w-full flex flex-col justify-between items-start ${
               isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
-            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7", height: "200px", padding: "16px 20px" }}
           >
             {editMode && (
               <button onClick={() => handleRemoveWidget(widgetId)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md z-10">
@@ -189,7 +189,7 @@ export default function SamsungHomeScreen({
               </button>
             )}
             {/* Title row */}
-            <p className="text-[15px] font-bold text-[#2c3e50] mb-4">Mood Log Streak</p>
+            <p className="text-[15px] font-bold text-[#2c3e50]">Mood Log Streak</p>
             {/* Streak count + day circles side by side */}
             <div className="flex items-center gap-3">
               {/* Flame + count */}
@@ -233,10 +233,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white rounded-[20px] p-5 cursor-pointer relative w-full ${
+            className={`bg-white rounded-[20px] cursor-pointer relative w-full flex flex-col justify-between items-start ${
               isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
-            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7", height: "200px", padding: "16px 20px" }}
           >
             {editMode && (
               <button
@@ -248,7 +248,7 @@ export default function SamsungHomeScreen({
             )}
             
             {/* Header */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between w-full">
               <h3 className="text-[16px] text-[#4a90e2]">Steps</h3>
               <div className="w-10 h-10 rounded-full bg-[#B8D9F0] flex items-center justify-center">
                 <span className="text-2xl">{stepsIcon}</span>
@@ -256,7 +256,7 @@ export default function SamsungHomeScreen({
             </div>
 
             {/* Main Content: Steps count on left, Progress ring on right */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between w-full">
               {/* Left: Step count */}
               <div className="flex items-baseline gap-1">
                 <p className="text-[24px] text-[#4a90e2] font-bold leading-tight">6514</p>
@@ -318,7 +318,9 @@ export default function SamsungHomeScreen({
           </motion.div>
         );
 
-      case "sleep":
+      case "sleep": {
+        // Each entry: total bar height in px (blue top + green bottom, equal halves)
+        const sleepBars = [60, 60, 70, 60, 50, 60, 80, 88, 90, 100, 100, 90];
         return (
           <motion.div
             layout
@@ -326,10 +328,15 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white rounded-[20px] p-5 cursor-pointer relative w-full ${
+            className={`bg-white rounded-[16px] cursor-pointer relative w-full flex flex-col ${
               isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
-            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
+            style={{
+              boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)",
+              border: isSelected ? undefined : "1px solid #E2E6E7",
+              height: "200px",
+              padding: "16px 20px 16px 20px",
+            }}
           >
             {editMode && (
               <button
@@ -339,38 +346,66 @@ export default function SamsungHomeScreen({
                 <X className="w-4 h-4 text-white" />
               </button>
             )}
-            {/* Header row — matches Figma */}
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-[15px] font-bold text-[#4A90E2]">Sleep Score</h3>
-                <span className="text-[18px] font-bold text-[#4A90E2]">78</span>
+
+            {/* Header row: title + score on left, moon icon on right */}
+            <div className="flex items-start justify-between w-full mb-1">
+              <div>
+                <p className="text-[16px] font-bold text-[#4A90E2] leading-tight">Sleep Score</p>
+                <p className="text-[13px] text-[#868686] mt-0.5">Actual Sleep&nbsp;&nbsp;7.5 h</p>
               </div>
-              <div className="w-9 h-9 rounded-full bg-[#e8f4fd] flex items-center justify-center text-[18px]">😴</div>
-            </div>
-            <div className="flex items-center gap-3 mb-4">
-              <p className="text-[13px] text-[#868686]">Actual Sleep</p>
-              <p className="text-[13px] font-semibold text-[#2c3e50]">7.5 h</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="text-[22px] font-bold text-[#4A90E2]">78</span>
+                <div
+                  className="p-[6px] rounded-full flex items-center justify-center"
+                  style={{ background: "rgba(168,213,186,0.5)" }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                      fill="#A8D5BA"
+                      stroke="#A8D5BA"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-end justify-between h-20 gap-2">
-              {[65, 72, 78, 81, 75, 70, 78].map((score, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full bg-[#E8F4FD] rounded-t-md overflow-hidden relative">
+            {/* Dual-segment bar chart — fills remaining vertical space, bottom-aligned */}
+            <div className="flex items-end justify-between flex-1 w-full">
+              {sleepBars.map((totalH, i) => {
+                const half = totalH / 2;
+                return (
+                  <div
+                    key={i}
+                    className="flex flex-col items-stretch justify-end"
+                    style={{ width: "12px", height: `${totalH}px` }}
+                  >
+                    {/* Blue top segment */}
                     <motion.div
-                      className="w-full bg-gradient-to-t from-[#4A90E2] to-[#A8D5BA]"
+                      className="w-full rounded-[100px]"
                       initial={{ height: 0 }}
-                      animate={{ height: `${score}px` }}
-                      transition={{ delay: i * 0.1, duration: 0.3 }}
+                      animate={{ height: `${half}px` }}
+                      transition={{ duration: 0.5, delay: i * 0.04, ease: "easeOut" }}
+                      style={{ background: "rgba(74,144,226,0.5)", marginBottom: "2px", flexShrink: 0 }}
+                    />
+                    {/* Green bottom segment */}
+                    <motion.div
+                      className="w-full rounded-[100px]"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${half}px` }}
+                      transition={{ duration: 0.5, delay: i * 0.04 + 0.05, ease: "easeOut" }}
+                      style={{ background: "rgba(168,213,186,0.5)", flexShrink: 0 }}
                     />
                   </div>
-                  <p className="text-[9px] text-[#868686]">
-                    {["S", "M", "T", "W", "T", "F", "S"][i]}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         );
+      }
 
       case "hrv":
         return (
@@ -380,10 +415,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white rounded-[16px] p-5 cursor-pointer relative w-full ${
+            className={`bg-white rounded-[16px] cursor-pointer relative w-full flex flex-col justify-between items-start ${
               isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
-            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7", height: "200px", padding: "16px 20px" }}
           >
             {editMode && (
               <button
@@ -393,7 +428,7 @@ export default function SamsungHomeScreen({
                 <X className="w-4 h-4 text-white" />
               </button>
             )}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between w-full">
               <div>
                 <h3 className="text-[14px] font-semibold text-[#2c3e50]">HRV</h3>
                 <p className="text-[24px] font-bold text-[#F5A623] mt-1">73.2</p>
@@ -425,10 +460,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white rounded-[16px] p-5 cursor-pointer relative w-full ${
+            className={`bg-white rounded-[16px] cursor-pointer relative w-full flex flex-col justify-between items-start ${
               isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
-            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7", height: "200px", padding: "16px 20px" }}
           >
             {editMode && (
               <button
@@ -438,7 +473,7 @@ export default function SamsungHomeScreen({
                 <X className="w-4 h-4 text-white" />
               </button>
             )}
-            <h3 className="text-[14px] font-semibold text-[#2c3e50] mb-3">Wellness Score</h3>
+            <h3 className="text-[14px] font-semibold text-[#2c3e50]">Wellness Score</h3>
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-[20px] font-bold">{wellnessScore}</span>
@@ -466,10 +501,10 @@ export default function SamsungHomeScreen({
             whileHover={!editMode ? { scale: 1.01 } : {}}
             whileTap={!editMode ? { scale: 0.99 } : {}}
             onClick={() => handleWidgetClick(widgetId)}
-            className={`bg-white rounded-[16px] p-5 cursor-pointer relative w-full ${
+            className={`bg-white rounded-[16px] cursor-pointer relative w-full flex flex-col justify-between items-start ${
               isSelected ? "border-2 border-[#4A90E2] ring-4 ring-[#4A90E2]/30" : ""
             } ${editMode ? "animate-wiggle" : ""}`}
-            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7" }}
+            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: isSelected ? undefined : "1px solid #E2E6E7", height: "200px", padding: "16px 20px" }}
           >
             {editMode && (
               <button
@@ -479,7 +514,7 @@ export default function SamsungHomeScreen({
                 <X className="w-4 h-4 text-white" />
               </button>
             )}
-            <h3 className="text-[14px] font-semibold text-[#2c3e50] mb-3">Mood Trends</h3>
+            <h3 className="text-[14px] font-semibold text-[#2c3e50]">Mood Trends</h3>
             <div className="flex items-center gap-3">
               <div className="flex gap-2">
                 {["😊", "😌", "😊", "😃", "😌", "😊", "😃"].map((emoji, i) => (
@@ -573,11 +608,11 @@ export default function SamsungHomeScreen({
               key={pageIndex}
               className="w-full flex-shrink-0"
               style={{ padding: "20px 32px 56px 32px" }}>
-              {/* Widgets — gap 20px, left-aligned */}
-              <div className="flex flex-col gap-5 items-start w-full">
+              {/* Widgets — gap 20px, full-width */}
+              <div className="flex flex-col gap-5 items-stretch w-full">
                 <AnimatePresence mode="popLayout">
                   {getWidgetsByPage(pageIndex).map((position) => (
-                    <div key={position.id}>
+                    <div key={position.id} className="w-full">
                       {renderWidget(position.id, position)}
                     </div>
                   ))}
