@@ -8,18 +8,18 @@ import bearImg from "figma:asset/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
 function OffOnToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
     <div
-      className="flex rounded-[8px] overflow-hidden flex-shrink-0"
-      style={{ border: "1px solid #E2E6E7" }}
+      className="flex items-center flex-shrink-0"
+      style={{ background: "#ecf0f1", borderRadius: "6px", padding: "2px" }}
     >
       {([false, true] as const).map((opt) => (
         <button
           key={String(opt)}
           onClick={() => onChange(opt)}
-          className="px-4 py-[7px] text-[13px] font-medium transition-all"
+          className="px-4 py-[5px] text-[13px] font-bold transition-all rounded-[4px]"
           style={{
-            background: value === opt ? "#2c3e50" : "#fff",
-            color: value === opt ? "#fff" : "#2c3e50",
-            borderRight: !opt ? "1px solid #E2E6E7" : undefined,
+            background: value === opt ? "#fff" : "transparent",
+            color: "#2c3e50",
+            boxShadow: value === opt ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
           }}
         >
           {opt ? "On" : "Off"}
@@ -355,16 +355,16 @@ export default function ProfileScreen({ onNavigateHome }: ProfileScreenProps) {
               {/* Appearance */}
               <div className="flex items-center justify-between w-full">
                 <span className="text-[15px] text-[#2c3e50]">Appearance</span>
-                <div className="flex rounded-[10px] overflow-hidden" style={{ border: "1px solid #E2E6E7" }}>
+                <div className="flex items-center" style={{ background: "#ecf0f1", borderRadius: "6px", padding: "2px" }}>
                   {(["Auto", "Light", "Dark"] as const).map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setAppearance(opt)}
-                      className="px-4 py-[7px] text-[13px] font-medium transition-all"
+                      className="px-4 py-[5px] text-[13px] font-bold transition-all rounded-[4px]"
                       style={{
-                        background: appearance === opt ? "#2c3e50" : "#fff",
-                        color: appearance === opt ? "#fff" : "#2c3e50",
-                        borderRight: opt !== "Dark" ? "1px solid #E2E6E7" : undefined,
+                        background: appearance === opt ? "#fff" : "transparent",
+                        color: "#2c3e50",
+                        boxShadow: appearance === opt ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                       }}
                     >
                       {opt}
@@ -376,18 +376,17 @@ export default function ProfileScreen({ onNavigateHome }: ProfileScreenProps) {
               {/* Text Size */}
               <div className="flex items-center justify-between w-full">
                 <span className="text-[15px] text-[#2c3e50]">Text Size</span>
-                <div className="flex rounded-[10px] overflow-hidden" style={{ border: "1px solid #E2E6E7" }}>
+                <div className="flex items-center" style={{ background: "#ecf0f1", borderRadius: "6px", padding: "2px" }}>
                   {(["Small", "Medium", "Large"] as const).map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setTextSize(opt)}
-                      className="px-4 py-[7px] transition-all"
+                      className="px-4 py-[5px] font-bold transition-all rounded-[4px]"
                       style={{
-                        background: textSize === opt ? "#2c3e50" : "#fff",
-                        color: textSize === opt ? "#fff" : "#2c3e50",
-                        fontSize: opt === "Small" ? "11px" : opt === "Medium" ? "13px" : "15px",
-                        fontWeight: opt === "Medium" ? 700 : 500,
-                        borderRight: opt !== "Large" ? "1px solid #E2E6E7" : undefined,
+                        background: textSize === opt ? "#fff" : "transparent",
+                        color: "#2c3e50",
+                        fontSize: opt === "Small" ? "12px" : opt === "Medium" ? "14px" : "16px",
+                        boxShadow: textSize === opt ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                       }}
                     >
                       {opt}

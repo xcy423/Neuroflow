@@ -852,7 +852,7 @@ export default function EnhancedChallengesScreen({ onNavigateHome, onOpenChallen
               {activeChallenges.map((challenge) => (
                 <motion.div
                   key={challenge.id}
-                  onClick={() => setSelectedDiscoverChallenge(challenge)}
+                  onClick={() => onOpenChallenge(challenge)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   className="bg-white flex flex-col gap-3 p-4 rounded-[16px] relative cursor-pointer select-none"

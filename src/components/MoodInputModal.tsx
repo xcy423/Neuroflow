@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-// @ts-ignore – resolved by vite alias at runtime
-import bearImg from "figma:asset/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
+import bearImg from "../assets/a6e30b99b1b5110ddc2504b6f21c7a9407ff4343.png";
 
 // Bear emotion images — already bundled from Figma assets, work on all devices
 import bearDrainedImg   from "../assets/71d2e20f8f76af16ab89c71d15e53ecbbc180be0.png";
@@ -15,6 +14,10 @@ const bearBalanced  = bearBalancedImg;
 const bearEnergized = bearEnergizedImg;
 const bearCrushing  = bearCrushingImg;
 
+// Waveform bar heights (px) for the connector between adjacent bears
+// Index = distance from selected bear (0 = closest to selected, 1 = next, 2 = outermost)
+const WAVE_BARS = [26.4, 16.8, 7.2] as const;
+
 interface MoodInputModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,29 +25,47 @@ interface MoodInputModalProps {
 }
 
 // Bear images are assigned after import declarations
-const ENERGY_LEVELS_DATA = [
-  { id: "drained",   label: "Drained",     color: "#8D9DB6" },
-  { id: "low",       label: "Low Energy",  color: "#A8A8B3" },
-  { id: "balanced",  label: "Balanced",    color: "#F5C842" },
-  { id: "energized", label: "Energized",   color: "#F5A623" },
-  { id: "crushing",  label: "Crushing It", color: "#4A90E2" },
-];
-
-const DRIVERS = [
-  "Work / Hustle",
-  "Physical Health",
-  "Life",
-  "Sleep",
-  "Relationships",
-  "Nutrition",
-];
-
+// Colors ordered left-to-right: Crushing It → Fuzzy/Foggy
+// The "bar color" between two bears interpolates toward the selected bear's color
 const ENERGY_LEVELS = [
-  { ...ENERGY_LEVELS_DATA[0], bear: bearDrained },
-  { ...ENERGY_LEVELS_DATA[1], bear: bearLow },
-  { ...ENERGY_LEVELS_DATA[2], bear: bearBalanced },
-  { ...ENERGY_LEVELS_DATA[3], bear: bearEnergized },
-  { ...ENERGY_LEVELS_DATA[4], bear: bearCrushing },
+  { id: "crushing",  label: "Crushing It", color: "#F5A623", bear: bearCrushing  },
+  { id: "energized", label: "Energized",   color: "#D3A558", bear: bearEnergized },
+  { id: "balanced",  label: "Balanced",    color: "#C5A570", bear: bearBalanced  },
+  { id: "low",       label: "Low Energy",  color: "#BAA582", bear: bearLow       },
+  { id: "drained",   label: "Drained",     color: "#868686", bear: bearDrained   },
+];
+
+const DRIVER_GROUPS = [
+  {
+    id: "work",
+    label: "Work / Hustle",
+    suboptions: ["Deadlines", "Client Feedback", "Meetings", "Context-Switching"],
+  },
+  {
+    id: "physical",
+    label: "Physical Health",
+    suboptions: ["Bad Sleep", "Too much caffeine", "Skipped meal", "Good workout"],
+  },
+  {
+    id: "life",
+    label: "Life",
+    suboptions: ["Socializing", "Isolation", "Financial stress", "Personal win"],
+  },
+  {
+    id: "sleep",
+    label: "Sleep",
+    suboptions: ["Poor sleep", "Good sleep", "Insomnia", "Oversleeping"],
+  },
+  {
+    id: "relationships",
+    label: "Relationships",
+    suboptions: ["Conflict", "Support", "Loneliness", "Deep connection"],
+  },
+  {
+    id: "nutrition",
+    label: "Nutrition",
+    suboptions: ["Skipped meals", "Ate well", "Too much junk", "Stayed hydrated"],
+  },
 ];
 
 export default function MoodInputModal({
@@ -53,24 +74,57 @@ export default function MoodInputModal({
   onSubmit,
 }: MoodInputModalProps) {
   const [selectedEnergy, setSelectedEnergy] = useState("crushing");
-  const [selectedDrivers, setSelectedDrivers] = useState<string[]>([]);
+  const [expandedDrivers, setExpandedDrivers] = useState<Set<string>>(new Set());
+  const [selectedSubOptions, setSelectedSubOptions] = useState<Record<string, string[]>>({});
   const [note, setNote] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const micPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
 
   const selectedEnergyObj = ENERGY_LEVELS.find((e) => e.id === selectedEnergy)!;
   const selectedIndex = ENERGY_LEVELS.findIndex((e) => e.id === selectedEnergy);
 
-  const toggleDriver = (driver: string) => {
-    setSelectedDrivers((prev) =>
-      prev.includes(driver) ? prev.filter((d) => d !== driver) : [...prev, driver]
-    );
+  // Update selection based on pointer X position on the slider row
+  const updateFromPointer = useCallback((clientX: number) => {
+    if (!sliderRef.current) return;
+    const rect = sliderRef.current.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const idx = Math.round(ratio * (ENERGY_LEVELS.length - 1));
+    setSelectedEnergy(ENERGY_LEVELS[idx].id);
+  }, []);
+
+  const toggleExpand = (id: string) => {
+    setExpandedDrivers((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSubOption = (driverId: string, sub: string) => {
+    setSelectedSubOptions((prev) => {
+      const current = prev[driverId] ?? [];
+      const next = current.includes(sub)
+        ? current.filter((s) => s !== sub)
+        : [...current, sub];
+      return { ...prev, [driverId]: next };
+    });
   };
 
   const handleSubmit = () => {
-    onSubmit(selectedEnergy, selectedDrivers, note);
+    const selected: string[] = [];
+    for (const group of DRIVER_GROUPS) {
+      if (expandedDrivers.has(group.id)) {
+        const subs = selectedSubOptions[group.id] ?? [];
+        if (subs.length > 0) selected.push(...subs);
+        else selected.push(group.label);
+      }
+    }
+    onSubmit(selectedEnergy, selected, note);
     setSelectedEnergy("crushing");
-    setSelectedDrivers([]);
+    setExpandedDrivers(new Set());
+    setSelectedSubOptions({});
     setNote("");
   };
 
@@ -92,15 +146,18 @@ export default function MoodInputModal({
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="bg-white w-full max-w-[440px] overflow-y-auto max-h-[92vh] flex flex-col items-center"
+        className="bg-white w-full max-w-[440px] flex flex-col"
         style={{
           borderRadius: "60px 60px 0 0",
           border: "2px solid #E2E6E7",
           boxShadow: "0 0 2px 0 #FFF, 0 0 12px 0 rgba(44, 62, 80, 0.12)",
-          padding: "120px 28px 20px 28px",
-          gap: "24px",
+          maxHeight: "75vh",
+          overflow: "hidden",
         }}
       >
+        {/* ── Scrollable content ── */}
+        <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "120px 28px 24px 28px", gap: "24px" }}>
+
         {/* ── Drag Handle ── */}
         <div className="flex justify-center w-full">
           <div className="w-[40px] h-[4px] rounded-full bg-[#d0d5d8]" />
@@ -158,62 +215,138 @@ export default function MoodInputModal({
             How's your energy right now?
           </p>
 
-          {/* Mood Slider Row */}
-          <div className="flex items-center justify-between mb-3">
-            {ENERGY_LEVELS.map((level, i) => {
-              const isSelected = level.id === selectedEnergy;
-              const size = isSelected ? 52 : 36;
-              const isFilled = i <= selectedIndex;
-              return (
-                <div key={level.id} className="flex items-center">
-                  {/* Connector dots before this item (except first) */}
-                  {i > 0 && (
-                    <div className="flex items-center gap-[3px] mx-[2px]">
-                      {[0, 1, 2].map((dot) => (
+          {/* Mood Slider Row — draggable
+              Fixed height (72px) reserves space for the largest bear so the
+              surrounding layout never shifts. Connectors use flex:1 so every
+              gap between bears is exactly equal regardless of their content. */}
+          <div
+            ref={sliderRef}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+              height: "72px",        // fixed → no layout shift on selection change
+              cursor: "grab",
+              userSelect: "none",
+              touchAction: "none",
+              marginBottom: "4px",
+            }}
+            onPointerDown={(e) => {
+              isDragging.current = true;
+              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+              updateFromPointer(e.clientX);
+            }}
+            onPointerMove={(e) => {
+              if (!isDragging.current) return;
+              updateFromPointer(e.clientX);
+            }}
+            onPointerUp={() => { isDragging.current = false; }}
+            onPointerCancel={() => { isDragging.current = false; }}
+          >
+            {ENERGY_LEVELS.flatMap((level, i) => {
+              const isSelected  = level.id === selectedEnergy;
+              const isActive    = i <= selectedIndex;
+              const bubbleSize  = isSelected ? 57.6 : 33.6;
+              const bearSize    = isSelected ? 38.4 : 24;
+              const bubbleBg    = isActive ? level.color : "#868686";
+
+              // connector between bear[i-1] and bear[i]
+              const connectorColor  = i <= selectedIndex ? selectedEnergyObj.color : "#868686";
+              const spansSel        = i > 0 && (selectedIndex === i - 1 || selectedIndex === i);
+              const toLeft          = i > 0 && i - 1 < selectedIndex;
+              const barsOrdered     = toLeft
+                ? [...WAVE_BARS].reverse()  // short→mid→tall (approaching selected from left)
+                : WAVE_BARS;               // tall→mid→short (leaving selected to right)
+
+              const connector = i > 0 ? (
+                <div
+                  key={`conn-${i}`}
+                  style={{
+                    flex: 1,               // all connectors share remaining space equally
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    alignSelf: "stretch",
+                    gap: "2.4px",
+                  }}
+                >
+                  {spansSel
+                    ? barsOrdered.map((h, bi) => (
+                        <div
+                          key={bi}
+                          style={{
+                            width: "7.2px",
+                            height: `${h}px`,
+                            background: connectorColor,
+                            borderRadius: "100px",
+                            flexShrink: 0,
+                          }}
+                        />
+                      ))
+                    : [0, 1].map((dot) => (
                         <div
                           key={dot}
-                          className="w-[4px] h-[4px] rounded-full"
-                          style={{ background: isFilled ? selectedEnergyObj.color : "#d0d5d8" }}
+                          style={{
+                            width: "7.2px",
+                            height: "7.2px",
+                            background: connectorColor,
+                            borderRadius: "100px",
+                            flexShrink: 0,
+                          }}
                         />
                       ))}
-                    </div>
-                  )}
-
-                  {/* Icon bubble */}
-                  <motion.button
-                    animate={{ width: size, height: size }}
-                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                    onClick={() => setSelectedEnergy(level.id)}
-                    className="flex-shrink-0 rounded-full flex items-center justify-center overflow-hidden select-none p-[3px]"
-                    style={{
-                      background: isSelected
-                        ? `radial-gradient(circle, ${level.color}35 0%, ${level.color}15 100%)`
-                        : "#ecf0f1",
-                      boxShadow: isSelected
-                        ? `0px 0px 0px 3px ${level.color}60, 0px 4px 12px ${level.color}40`
-                        : "none",
-                    }}
-                  >
-                    <img
-                      src={level.bear}
-                      alt={level.label}
-                      className="w-full h-full object-contain"
-                      draggable={false}
-                    />
-                  </motion.button>
                 </div>
+              ) : null;
+
+              const bear = (
+                <motion.button
+                  key={level.id}
+                  animate={{ width: bubbleSize, height: bubbleSize }}
+                  transition={{ type: "spring", damping: 22, stiffness: 320 }}
+                  onClick={() => setSelectedEnergy(level.id)}
+                  style={{
+                    flexShrink: 0,
+                    borderRadius: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "4.8px",
+                    background: bubbleBg,
+                    boxShadow: isSelected
+                      ? `0px 0px 0px 3px ${level.color}60, 0px 4px 12px ${level.color}50`
+                      : "none",
+                    userSelect: "none",
+                  }}
+                >
+                  <motion.img
+                    animate={{ width: bearSize, height: bearSize }}
+                    transition={{ type: "spring", damping: 22, stiffness: 320 }}
+                    src={level.bear}
+                    alt={level.label}
+                    style={{ flexShrink: 0, objectFit: "cover", borderRadius: "50%", pointerEvents: "none", display: "block" }}
+                    draggable={false}
+                  />
+                </motion.button>
               );
+
+              return connector ? [connector, bear] : [bear];
             })}
           </div>
 
           {/* Selected Label Pill */}
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-[14px]">
             <motion.div
               key={selectedEnergyObj.id}
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="px-5 py-[6px] rounded-full text-white text-[14px] font-semibold"
-              style={{ background: selectedEnergyObj.color }}
+              className="rounded-full text-white text-[14px] font-semibold"
+              style={{
+                background: selectedEnergyObj.color,
+                paddingLeft: "9.6px",
+                paddingRight: "9.6px",
+                paddingTop: "2.4px",
+                paddingBottom: "2.4px",
+              }}
             >
               {selectedEnergyObj.label}
             </motion.div>
@@ -228,23 +361,69 @@ export default function MoodInputModal({
               (Select more than one)
             </span>
           </p>
-          <div className="flex flex-wrap gap-[10px]">
-            {DRIVERS.map((driver) => {
-              const active = selectedDrivers.includes(driver);
-              return (
+          {/* flex-wrap container — all pills are flat siblings so they wrap naturally
+              without forcing expanded groups onto their own dedicated rows */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "flex-start" }}>
+            {DRIVER_GROUPS.flatMap((group) => {
+              const isExpanded = expandedDrivers.has(group.id);
+              const subSel = selectedSubOptions[group.id] ?? [];
+
+              const parentPill = (
                 <button
-                  key={driver}
-                  onClick={() => toggleDriver(driver)}
-                  className="px-4 py-[7px] rounded-full text-[13px] font-medium border transition-all"
+                  key={group.id}
+                  onClick={() => toggleExpand(group.id)}
                   style={{
-                    borderColor: active ? "#4A90E2" : "#c8cdd1",
-                    background: active ? "#4A90E2" : "transparent",
-                    color: active ? "#fff" : "#2c3e50",
+                    background: isExpanded ? "#4A90E2" : "#FCFCFC",
+                    border: `1px solid ${isExpanded ? "#ECF0F1" : "#868686"}`,
+                    borderRadius: "20px",
+                    padding: "4px 8px",
+                    color: isExpanded ? "#ECF0F1" : "#868686",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    flexShrink: 0,
                   }}
                 >
-                  {driver}
+                  {group.label}
                 </button>
               );
+
+              if (!isExpanded) return [parentPill];
+
+              const subPills = group.suboptions.map((sub) => {
+                const subActive = subSel.includes(sub);
+                return (
+                  <button
+                    key={`${group.id}-${sub}`}
+                    onClick={() => toggleSubOption(group.id, sub)}
+                    style={{
+                      background: subActive ? "#4A90E2" : "#E2E6E7",
+                      border: "1px solid #4A90E2",
+                      borderRadius: "20px",
+                      padding: "4px 8px",
+                      color: subActive ? "#ECF0F1" : "#4A90E2",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {sub}
+                  </button>
+                );
+              });
+
+              // Spacer after last sub-option to visually separate groups
+              const spacer = (
+                <div
+                  key={`${group.id}-spacer`}
+                  style={{ flexBasis: "100%", height: "0px", margin: "0" }}
+                />
+              );
+
+              return [parentPill, ...subPills, spacer];
             })}
           </div>
         </div>
@@ -331,22 +510,33 @@ export default function MoodInputModal({
 
         </div>{/* end inner card */}
 
-        {/* ── Footer Buttons ── */}
-        <div className="flex gap-3 w-full">
-          <button
-            onClick={onClose}
-            className="flex-1 py-[14px] rounded-[100px] text-[15px] font-semibold text-[#2c3e50]"
-            style={{ background: "#e2e6e8" }}
-          >
-            Close
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="flex-1 py-[14px] rounded-[100px] text-[15px] font-semibold text-white"
-            style={{ background: "#2c3e50" }}
-          >
-            Save
-          </button>
+        </div>{/* end scrollable content */}
+
+        {/* ── Footer Buttons — sticky, always visible ── */}
+        <div
+          style={{
+            flexShrink: 0,
+            padding: "12px 16px",
+            borderTop: "1px solid #E2E6E7",
+            background: "#fff",
+          }}
+        >
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={onClose}
+              className="flex-1 py-[14px] rounded-[100px] text-[15px] font-semibold text-[#2c3e50]"
+              style={{ background: "#e2e6e8" }}
+            >
+              Close
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="flex-1 py-[14px] rounded-[100px] text-[15px] font-semibold text-white"
+              style={{ background: "#2c3e50" }}
+            >
+              Save
+            </button>
+          </div>
         </div>
       </motion.div>
     </div>
