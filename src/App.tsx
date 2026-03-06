@@ -12,6 +12,8 @@ import SanctuaryScreen from "./components/SanctuaryScreen";
 import EnhancedSanctuaryScreen from "./components/EnhancedSanctuaryScreen";
 import ProfileScreen from "./components/ProfileScreen";
 import MoodInputModal from "./components/MoodInputModal";
+import HarmonyCardModal from "./components/HarmonyCardModal";
+import { handleSubmitMoodLog, type CardType } from "./data/harmonyCards";
 import WidgetCustomizer from "./components/WidgetCustomizer";
 import WidgetDetailScreen from "./components/WidgetDetailScreen";
 import StreakHistoryModal from "./components/StreakHistoryModal";
@@ -40,6 +42,8 @@ export default function App() {
     useState(false);
   const [showStreakHistory, setShowStreakHistory] =
     useState(false);
+  const [harmonyCardType, setHarmonyCardType] = useState<CardType>("spark");
+  const [showHarmonyCard, setShowHarmonyCard] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
 
@@ -110,7 +114,13 @@ export default function App() {
     setMoodLogCount((prev) => prev + 1);
     setStreakDays((prev) => prev + 1);
     setShowMoodModal(false);
-    toast.success("Mood logged successfully! 🌟");
+
+    // Determine which Harmony Card to show based on the mood log
+    const cardType = handleSubmitMoodLog(mood, drivers ?? [], note ?? "");
+    setHarmonyCardType(cardType);
+    setShowHarmonyCard(true);
+
+    toast.success("Mood logged! Your Harmony Card is ready ✨");
 
     if (isFirstTimeUser) {
       localStorage.setItem("hasVisited", "true");
@@ -399,6 +409,13 @@ export default function App() {
           onClose={() => setShowStreakHistory(false)}
           streakDays={streakDays}
           moodLogCount={moodLogCount}
+        />
+
+        {/* Harmony Card — shown after mood log submission */}
+        <HarmonyCardModal
+          isOpen={showHarmonyCard}
+          cardType={harmonyCardType}
+          onClose={() => setShowHarmonyCard(false)}
         />
 
         {/* Toast Notifications */}
