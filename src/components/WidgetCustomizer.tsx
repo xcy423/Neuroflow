@@ -70,7 +70,7 @@ export default function WidgetCustomizer({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-end animate-fade-in">
       <div className="bg-white w-full max-w-[440px] mx-auto rounded-t-[32px] p-8 animate-slide-up max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-bold text-[24px] text-[#2c3e50]">

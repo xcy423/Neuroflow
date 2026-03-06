@@ -113,14 +113,18 @@ export default function App() {
   const handleMoodSubmit = (mood: string, drivers?: string[], note?: string) => {
     setMoodLogCount((prev) => prev + 1);
     setStreakDays((prev) => prev + 1);
-    setShowMoodModal(false);
 
-    // Determine which Harmony Card to show based on the mood log
+    // Determine card type immediately (pure computation, no side-effects)
     const cardType = handleSubmitMoodLog(mood, drivers ?? [], note ?? "");
     setHarmonyCardType(cardType);
-    setShowHarmonyCard(true);
 
-    toast.success("Mood logged! Your Harmony Card is ready ✨");
+    // Close the mood modal first, then show the Harmony Card after it has
+    // finished its exit animation (~300 ms) so the two modals never overlap.
+    setShowMoodModal(false);
+    setTimeout(() => {
+      setShowHarmonyCard(true);
+      toast.success("Mood logged! Your Harmony Card is ready ✨");
+    }, 320);
 
     if (isFirstTimeUser) {
       localStorage.setItem("hasVisited", "true");
@@ -333,8 +337,17 @@ export default function App() {
   return (
     <div className="relative w-full min-h-screen bg-[#fcfcfc] flex items-center justify-center">
       {/* Main App Container - Responsive with iPhone Dynamic Island Support */}
+      {/* harmony-dimmed is added when the Harmony Card is open — CSS filter
+          dims every pixel in this subtree (including Framer Motion stacking
+          contexts) without any z-index conflicts. */}
       <div
-        className="relative w-full max-w-[440px] min-w-[320px] h-screen bg-[#fcfcfc] overflow-hidden mx-auto shadow-2xl"
+        className={`relative w-full max-w-[440px] min-w-[320px] h-screen bg-[#fcfcfc] overflow-hidden mx-auto shadow-2xl${
+            showHarmonyCard
+              ? " harmony-dimmed"
+              : (showMoodModal || showWidgetCustomizer || showStreakHistory || showCreateChallengeModal)
+              ? " modal-dimmed"
+              : ""
+          }`}
         style={{
           // Support for iPhone Safe Areas and Dynamic Island
           paddingTop: "env(safe-area-inset-top, 0px)",

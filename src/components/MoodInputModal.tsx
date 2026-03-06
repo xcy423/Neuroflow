@@ -122,6 +122,8 @@ export default function MoodInputModal({
       }
     }
     onSubmit(selectedEnergy, selected, note);
+    // Close the modal — App.tsx will open the Harmony Card after the exit anim
+    onClose();
     setSelectedEnergy("crushing");
     setExpandedDrivers(new Set());
     setSelectedSubOptions({});
@@ -140,7 +142,7 @@ export default function MoodInputModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
       <motion.div
         initial={{ y: "100%" }}
         animate={{ y: 0 }}

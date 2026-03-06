@@ -4,6 +4,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * .harmony-dimmed
+ * Applied to the app root container when the Harmony Card modal is open.
+ * CSS `filter` dims the entire painted output of the element and all its
+ * descendants — it bypasses every internal stacking context created by
+ * Framer Motion transforms, will-change, or position:fixed wrappers.
+ * A rgba overlay cannot do this; filter can, because it operates on the
+ * final composited pixels, not on z-index layering.
+ *
+ * The portalled HarmonyCardModal is a sibling of #root on <body> and
+ * therefore completely unaffected by this filter.
+ */
+/* Harmony Card overlay — moderate dim so the home screen is visible but
+   clearly in the background */
+.harmony-dimmed {
+  filter: brightness(0.40) blur(3px);
+  transition: filter 0.35s ease;
+  pointer-events: none;
+}
+
+/* Mood log sheet — lighter dim, the sheet itself sits on top */
+.modal-dimmed {
+  filter: brightness(0.55) blur(1px);
+  transition: filter 0.3s ease;
+  pointer-events: none;
+}
+
 @layer base {
   :root {
     --color-light-blue: #E8F4FD;
