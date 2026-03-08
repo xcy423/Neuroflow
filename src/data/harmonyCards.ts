@@ -55,75 +55,75 @@ export const HARMONY_CARDS: Record<CardType, HarmonyCard> = {
   // Triggered by: high stress, overwhelm, financial pressure, context-switching
   anchor: {
     id: "anchor",
-    title: "The Anchor",
-    gradientColors: ["#B8D4E8", "#F5F0C8"], // light blue → pale yellow
+    title: "The Ground",
+    gradientColors: ["#8FB8D8", "#D8C8A8"], // steel blue → warm sand
     imageSrc: bearAnchorImg,
     tags: ["Stability", "Calm", "Grounding"],
     frontDescription:
-      "When everything feels like it's shifting, it's time to find your footing. You are more rooted than you think.",
+      "You're carrying a lot right now — pressure, noise, and weight from all directions. This is your invitation to stop, plant your feet, and remember you are still here.",
     backActionText:
-      "Press both feet firmly into the floor. Feel the ground hold you. Take 3 slow breaths and name 3 things you can see right now.",
+      "Press both feet firmly into the floor. Feel the ground hold you. Take 3 slow breaths and name 3 things you can see right now. You don't have to solve everything today.",
     backButtonLabel: "I'm grounded",
   },
 
-  // ── 2. The Momentum ────────────────────────────────────────────────────────
+  // ── 2. The Drive ───────────────────────────────────────────────────────────
   // Triggered by: energized mood, study, personal wins, deep connection
   momentum: {
     id: "momentum",
-    title: "The Momentum",
-    gradientColors: ["#A8D8B0", "#F5F0C8"], // mint green → pale yellow
+    title: "The Drive",
+    gradientColors: ["#F0B84A", "#C8E890"], // warm amber → fresh lime
     imageSrc: bearMomentumImg,
-    tags: ["Progress", "Growth", "Focus"],
+    tags: ["Progress", "Energy", "Flow"],
     frontDescription:
-      "You're in a powerful rhythm. Every small step you take is compounding into something remarkable. Keep moving.",
+      "Something clicked. You're moving with purpose today — the wins are stacking and the feeling is real. Don't let this momentum go to waste.",
     backActionText:
-      "Write down the one next tiny step toward your goal — not the whole staircase, just the next step. Then take it within the next 5 minutes.",
-    backButtonLabel: "Let's go",
+      "Capture it: write down the one thing you accomplished today that actually mattered to you. Then name the single next step you want to keep this energy going. Go.",
+    backButtonLabel: "Keeping the drive",
   },
 
-  // ── 3. The Cocoon ──────────────────────────────────────────────────────────
+  // ── 3. The Haven ───────────────────────────────────────────────────────────
   // Triggered by: low mood, drained, poor sleep, isolation, loneliness
   cocoon: {
     id: "cocoon",
-    title: "The Cocoon",
-    gradientColors: ["#C8B8E8", "#F4C8D0"], // lavender → pale pink
+    title: "The Haven",
+    gradientColors: ["#A890D8", "#F0B8CC"], // soft violet → blush rose
     imageSrc: bearCocoonImg,
-    tags: ["Rest", "Comfort", "Quiet"],
+    tags: ["Rest", "Comfort", "Renewal"],
     frontDescription:
-      "Rest isn't retreat — it's the quiet courage to let yourself recharge. Something beautiful is taking shape inside this stillness.",
+      "Your body and mind are asking for one thing right now: a safe place to land. You don't need to push through today. Rest is the most honest thing you can give yourself.",
     backActionText:
-      "Find a cozy corner, wrap yourself in something soft, and let yourself do absolutely nothing for 10 minutes. No screen, no task. Just warmth.",
-    backButtonLabel: "Rest now",
+      "Find a cozy corner, wrap yourself in something soft, and let yourself do absolutely nothing for 10 minutes. No screen, no task, no output. Just warmth and your own breath.",
+    backButtonLabel: "Taking shelter",
   },
 
-  // ── 4. The Release ─────────────────────────────────────────────────────────
+  // ── 4. The Exhale ──────────────────────────────────────────────────────────
   // Triggered by: frustration, conflict, meetings, client feedback, low energy
   release: {
     id: "release",
-    title: "The Release",
-    gradientColors: ["#A8D4D0", "#F8D8B8"], // light teal → pale orange
+    title: "The Exhale",
+    gradientColors: ["#78C8C0", "#F8C4A0"], // teal → warm peach
     imageSrc: bearReleaseImg,
-    tags: ["Stress Relief", "Mindfulness", "Breathwork"],
+    tags: ["Tension Release", "Breathwork", "Let Go"],
     frontDescription:
-      "A moment to breathe, let go, and find lightness. Take this time to stretch, exhale tension, and connect with your calm within.",
+      "You've been bracing against something — friction, frustration, or just too many things happening at once. Before you do anything else, you need to breathe it out.",
     backActionText:
-      "Raise your arms above your head like you're reaching for the sky. Then let them drop. Exhale hard through your mouth — three times. Feel that tension leave.",
-    backButtonLabel: "Releasing now",
+      "Raise your arms above your head like you're reaching for the sky. Then let them drop. Exhale hard through your mouth — three full times. With every exhale, something leaves. Let it.",
+    backButtonLabel: "I exhaled",
   },
 
-  // ── 5. The Spark ───────────────────────────────────────────────────────────
+  // ── 5. The Flicker ─────────────────────────────────────────────────────────
   // Triggered by: default / boredom / curiosity / undefined state
   spark: {
     id: "spark",
-    title: "The Spark",
-    gradientColors: ["#C0E8B8", "#F5F0C8"], // light green → pale yellow
+    title: "The Flicker",
+    gradientColors: ["#90D8B8", "#A8C8F4"], // seafoam → periwinkle blue
     imageSrc: bearSparkImg,
-    tags: ["Intuition", "Curiosity"],
+    tags: ["Curiosity", "Intuition", "Wonder"],
     frontDescription:
-      "Something in you is searching for a new signal. Follow that quiet pull — it's your intuition lighting the way toward something fresh.",
+      "You're in an open space today — not weighed down, not flying high. Something small is flickering at the edge of your attention. Follow it. It knows something you don't yet.",
     backActionText:
-      "Pick up the one thing you've been curious about but haven't tried yet. Spend just 5 minutes exploring it — a search, a sketch, a song. Let curiosity lead.",
-    backButtonLabel: "I'm curious",
+      "Pick up the one thing you've been curious about but haven't tried yet. Spend just 5 minutes exploring it — a search, a sketch, a song, a walk. Let curiosity lead without expecting a destination.",
+    backButtonLabel: "Following the flicker",
   },
 };
 

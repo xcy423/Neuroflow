@@ -304,12 +304,13 @@ export default function HarmonyCardModal({ isOpen, cardType, onClose }: HarmonyC
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          // No background needed — .harmony-dimmed on the app container
-          // handles all dimming via CSS filter (see globals.css). This div
-          // is a transparent positioning shell for the card and X button.
+          // Semi-dark overlay covers the full viewport (including areas outside
+          // the 440px app container). The CSS filter on the app container adds
+          // blur on top of this so everything behind is dim + soft.
           className="fixed inset-0 z-[200] flex flex-col items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.52)" }}
         >
-          {/* Close (X) — top-right corner */}
+          {/* Close button — top-right corner, visible on dark overlay */}
           <motion.button
             initial={{ opacity: 0, scale: 0.75 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -318,21 +319,23 @@ export default function HarmonyCardModal({ isOpen, cardType, onClose }: HarmonyC
             whileTap={{ scale: 0.88 }}
             onClick={dismiss}
             aria-label="Close Harmony Card"
-            className="absolute top-6 right-6"
+            className="absolute top-6 right-5"
             style={{
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               borderRadius: "50%",
-              background: "rgba(255,255,255,0.15)",
-              border: "1px solid rgba(255,255,255,0.22)",
+              background: "rgba(255,255,255,0.18)",
+              border: "1.5px solid rgba(255,255,255,0.55)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
             }}
           >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-              <path d="M1 1L12 12M12 1L1 12" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden>
+              <path d="M1.5 1.5L13.5 13.5M13.5 1.5L1.5 13.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
           </motion.button>
 

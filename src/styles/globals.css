@@ -19,7 +19,9 @@
 /* Harmony Card overlay — moderate dim so the home screen is visible but
    clearly in the background */
 .harmony-dimmed {
-  filter: brightness(0.40) blur(3px);
+  /* The portal overlay contributes rgba(0,0,0,0.52) on top — combined with
+     this filter the app feels fully "backgrounded" without going pitch black. */
+  filter: brightness(0.55) blur(3px);
   transition: filter 0.35s ease;
   pointer-events: none;
 }
