@@ -541,42 +541,12 @@ export default function SamsungHomeScreen({
         {/* DI spacer */}
         <div className="h-[30px]" />
 
-        {/* NeuroFlow animated header */}
-        <AnimatedHomeHeader />
-
-        {/* Greeting row — matches Figma */}
-        <div className="flex items-center justify-between pb-4" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
-          {/* Good Morning pill */}
-          <div
-            className="flex items-center gap-2 bg-white rounded-full px-4 py-[10px]"
-            style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: "1px solid #E2E6E7" }}
-          >
-            <span className="text-[18px]">☕</span>
-            <span className="text-[14px] font-semibold text-[#2c3e50]">Good Morning</span>
-          </div>
-
-          {/* Edit / Save button */}
-          {editMode ? (
-            <button
-              onClick={handleSaveLayout}
-              className="w-9 h-9 rounded-full bg-[#A8D5BA] shadow-sm flex items-center justify-center"
-            >
-              <Check className="w-4 h-4 text-white" />
-            </button>
-          ) : (
-            <button
-              onClick={() => setEditMode(true)}
-              className="w-9 h-9 rounded-full bg-white flex items-center justify-center"
-              style={{ boxShadow: "0px 0px 2px 0px #fff, 0px 0px 12px 0px rgba(44,62,80,0.12)", border: "1px solid #E2E6E7" }}
-            >
-              {/* Pencil icon */}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          )}
-        </div>
+        {/* NeuroFlow animated header with inline edit button */}
+        <AnimatedHomeHeader
+          editMode={editMode}
+          onEditClick={() => setEditMode(true)}
+          onSaveClick={handleSaveLayout}
+        />
       </div>
       {/* End sticky top */}
 
