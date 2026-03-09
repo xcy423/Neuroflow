@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "motion/react";
+﻿import { motion, AnimatePresence } from "motion/react";
 import { ChallengeInfo, ChallengeUserRank } from "../types/challenge";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -11,193 +11,374 @@ interface ChallengeSessionScreenProps {
 
 export default function ChallengeSessionScreen({ challenge, onBack, onCompleteToday }: ChallengeSessionScreenProps) {
   const [completedToday, setCompletedToday] = useState(false);
+  const [showAllRanks, setShowAllRanks] = useState(false);
+
+  const userRank = challenge.topUsers?.find((u: ChallengeUserRank) => u.name === "You");
+  const userDays = userRank?.days ?? 0;
+  const totalDays = 30;
+  const progressPct = Math.min((userDays / totalDays) * 100, 100);
+  const ringRadius = 40;
+  const ringCircumference = 2 * Math.PI * ringRadius;
 
   const handleComplete = () => {
     if (!completedToday) {
       setCompletedToday(true);
       onCompleteToday?.(challenge.id);
-      toast.success("Progress logged! Keep it up 💪");
+      toast.success("Progress logged! Keep it up ðŸ’ª");
     } else {
-      toast("Already logged for today ✅");
+      toast("Already logged for today âœ…");
     }
   };
 
-  const [showAllRanks, setShowAllRanks] = useState(false);
   const ranks: ChallengeUserRank[] = challenge.topUsers || [];
-
   const podium = ranks.slice(0, 3);
   const secondary = ranks.slice(3, 5);
   const remaining = ranks.slice(5);
 
+  const medalColors = ["#F5A623", "#868686", "#C87941"];
+  const medalLabels = ["1st", "2nd", "3rd"];
+  const podiumOrder = [1, 0, 2]; // silver, gold, bronze visual order
+
   return (
     <div className="w-full h-full flex flex-col bg-[#fcfcfc]">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-[#fcfcfc] px-5 sm:px-8 pt-4 pb-3 border-b border-[#e2e6e7] flex items-center gap-4">
+      <div
+        className="sticky top-0 z-20 bg-[#fcfcfc] px-5 pt-4 pb-3 flex items-center gap-3"
+        style={{ boxShadow: "0px 1px 0px 0px #E2E6E7" }}
+      >
         <button
           onClick={onBack}
           aria-label="Back"
-          className="p-2 rounded-[8px] hover:bg-[#E8F4FD] active:scale-95 transition-all flex items-center justify-center"
+          className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0 active:scale-95 transition-all"
+          style={{ background: "#f0f4f8" }}
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 12 12">
+          <svg width="16" height="16" fill="none" viewBox="0 0 12 12">
             <path d="M7.5 2.5L3.5 6l4 3.5" stroke="#2C3E50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <h2 className="text-[18px] font-bold text-[#2c3e50] truncate">{challenge.title}</h2>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-[17px] font-bold text-[#2c3e50] truncate leading-tight">{challenge.title}</h2>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span
+              className="text-[11px] font-semibold px-2 py-0.5 rounded-[4px]"
+              style={{ background: "rgba(168,213,186,0.25)", color: "#2c3e50" }}
+            >
+              {challenge.category}
+            </span>
+            <span className="text-[11px] font-medium text-[#F5A623]">{challenge.timeLeft} left</span>
+          </div>
+        </div>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-5 sm:px-8 pt-5 pb-16">
-        {/* Challenge Overview */}
+      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-20 flex flex-col gap-4">
+
+        {/* Challenge Overview Card */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-white rounded-[16px] border border-[#4a90e2] p-4 mb-6 relative overflow-hidden"
+          className="rounded-[16px] overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #EBF4FF 0%, #F0FBF4 100%)",
+            border: "1px solid #E2E6E7",
+            boxShadow: "0px 0px 12px 0px rgba(44,62,80,0.08)",
+          }}
         >
-          <div className="absolute left-[-82px] top-[-24.48px] pointer-events-none opacity-40 mix-blend-multiply">
-            <svg width="393" height="137" fill="none" viewBox="0 0 393 137">
-              <path d="M31.2421 23.3579C58.6309 13.6943 87.9153 7.70171 117.653 6.61813C206.964 3.31907 296.607 43.8255 357.232 110.735C327.6 129.053 295.559 130.743 265.145 118.262C234.73 105.78 206.671 87.3399 178.083 72.1646C149.495 56.9894 118.6 43.3399 88.7703 34.2535C69.5017 28.5224 50.2668 25.042 31.2421 23.3579Z" stroke="url(#paint0_radial)" strokeWidth="20" />
-              <defs>
-                <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(266.99 90.3718 -143.527 168.111 31.2421 23.3579)">
-                  <stop offset="0.117544" stopColor="#4A90E2" stopOpacity="0.3" />
-                  <stop offset="0.5" stopColor="white" stopOpacity="0.4" />
-                  <stop offset="1" stopColor="#4A90E2" stopOpacity="0.4" />
-                </radialGradient>
-              </defs>
-            </svg>
-          </div>
-
-          <div className="relative z-10 flex items-start gap-4">
-            <div className="w-12 h-12 rounded-[12px] bg-gradient-to-br from-[#E8F4FD] to-[#f0f0f0] flex items-center justify-center text-[28px]">
+          {/* Gradient top stripe */}
+          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #4A90E2 0%, #A8D5BA 100%)" }} />
+          <div className="p-4 flex items-start gap-3">
+            <div
+              className="w-14 h-14 rounded-[14px] flex items-center justify-center text-[28px] flex-shrink-0"
+              style={{ background: "white", boxShadow: "0px 2px 8px rgba(44,62,80,0.10)" }}
+            >
               {challenge.icon}
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-[18px] font-bold text-[#2c3e50] mb-2">{challenge.title}</h3>
-              <div className="inline-flex px-2 py-1 rounded-[6px] bg-[rgba(168,213,186,0.25)] mb-2">
-                <span className="text-[13px] font-semibold text-[#2c3e50]">{challenge.category}</span>
-              </div>
-              <p className="text-[13px] text-[#2c3e50] leading-relaxed mb-0">{challenge.description}</p>
-            </div>
-            <div className="flex flex-col items-end gap-2 flex-shrink-0">
-              <div className="px-2 py-1 rounded-[4px] bg-[rgba(245,166,35,0.2)] flex gap-1 items-center">
-                <span className="text-[12px] font-bold text-[#f5a623]">{challenge.timeLeft}</span>
-              </div>
-              <div className="flex gap-1 items-center">
-                <div className="size-[18px]">
-                  <svg className="block size-full" fill="none" viewBox="0 0 15 13">
-                    <path d="M4.75 4.25C5.57843 4.25 6.25 3.57843 6.25 2.75C6.25 1.92157 5.57843 1.25 4.75 1.25C3.92157 1.25 3.25 1.92157 3.25 2.75C3.25 3.57843 3.92157 4.25 4.75 4.25Z" stroke="#2C3E50" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M8.75 6.75C8.75 7.44765 8.47344 8.1176 7.98223 8.60881C7.49102 9.10002 6.82107 9.37658 6.12342 9.37658C5.42577 9.37658 4.75582 9.10002 4.26461 8.60881C3.7734 8.1176 3.49683 7.44765 3.49683 6.75" stroke="#2C3E50" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M11.25 4.25C12.0784 4.25 12.75 3.57843 12.75 2.75C12.75 1.92157 12.0784 1.25 11.25 1.25C10.4216 1.25 9.75 1.92157 9.75 2.75C9.75 3.57843 10.4216 4.25 11.25 4.25Z" stroke="#2C3E50" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M15.25 6.75C15.25 7.44765 14.9734 8.1176 14.4822 8.60881C13.991 9.10002 13.3211 9.37658 12.6234 9.37658C11.9258 9.37658 11.2558 9.10002 10.7646 8.60881C10.2734 8.1176 9.99683 7.44765 9.99683 6.75" stroke="#2C3E50" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <span className="text-[13px] font-medium text-[#2c3e50]">{challenge.participants}</span>
+            <div className="flex-1 min-w-0 pt-0.5">
+              <p className="text-[13px] text-[#2c3e50] leading-relaxed">{challenge.description}</p>
+              <div className="flex items-center gap-1 mt-2">
+                <svg className="size-[14px] flex-shrink-0" viewBox="0 0 20 20" fill="none">
+                  <circle cx="7" cy="6.5" r="2.5" fill="#80646f" />
+                  <path d="M1.5 16C1.5 13.015 4.015 10.5 7 10.5" stroke="#80646f" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="13" cy="6.5" r="3" fill="#80646f" />
+                  <path d="M7 17C7 13.686 9.686 11 13 11C16.314 11 19 13.686 19 17" stroke="#80646f" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span className="text-[12px] text-[#80646f]">{challenge.participants} participants</span>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Today's Task */}
+        {/* Your Progress Card */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.05 }}
-          className="bg-white rounded-[16px] border border-[#e2e6e7] p-4 mb-6"
+          className="bg-white rounded-[16px] p-4"
+          style={{ border: "1px solid #E2E6E7", boxShadow: "0px 0px 12px 0px rgba(44,62,80,0.06)" }}
         >
-          <h4 className="text-[15px] font-bold text-[#2c3e50] mb-3">Today's Task</h4>
-          <ul className="space-y-2 mb-4">
-            <li className="flex items-start gap-2">
-              <span className="text-[12px]">🌱</span>
-              <p className="text-[12px] text-[#2c3e50] leading-relaxed">Spend 5 minutes on mindful breathing.</p>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-[12px]">📝</span>
-              <p className="text-[12px] text-[#2c3e50] leading-relaxed">Journal one positive thought.</p>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-[12px]">💧</span>
-              <p className="text-[12px] text-[#2c3e50] leading-relaxed">Drink a glass of water after completing the above.</p>
-            </li>
-          </ul>
-          <button
-            onClick={handleComplete}
-            className={`w-full py-3 rounded-[8px] font-bold text-[14px] transition-all flex items-center justify-center shadow-[0px_4px_0px_0px_#477baf] active:translate-y-[2px] active:shadow-[0px_2px_0px_0px_#477baf] ${completedToday ? "bg-[#A8D5BA] text-[#2c3e50]" : "bg-[#4a90e2] text-white hover:bg-[#3A80D2]"}`}
-          >
-            {completedToday ? "Logged for Today ✅" : "Mark Today's Task Complete"}
-          </button>
+          <h4 className="text-[14px] font-bold text-[#2c3e50] mb-4">Your Progress</h4>
+          <div className="flex items-center gap-5">
+            {/* Animated ring */}
+            <div className="relative flex-shrink-0" style={{ width: 96, height: 96 }}>
+              <svg width="96" height="96" viewBox="0 0 96 96" style={{ transform: "rotate(-90deg)" }}>
+                <circle cx="48" cy="48" r={ringRadius} fill="none" stroke="#E2E6E7" strokeWidth="7" strokeLinecap="round" />
+                <motion.circle
+                  cx="48" cy="48" r={ringRadius}
+                  fill="none"
+                  stroke="url(#ringGrad)"
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  strokeDasharray={ringCircumference}
+                  initial={{ strokeDashoffset: ringCircumference }}
+                  animate={{ strokeDashoffset: ringCircumference - (progressPct / 100) * ringCircumference }}
+                  transition={{ duration: 1.1, ease: "easeOut", delay: 0.2 }}
+                />
+                <defs>
+                  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#4A90E2" />
+                    <stop offset="100%" stopColor="#A8D5BA" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <motion.span
+                  className="text-[19px] font-bold text-[#4a90e2] leading-none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  {Math.round(progressPct)}%
+                </motion.span>
+                <span className="text-[9px] font-medium text-[#80646f] mt-0.5">done</span>
+              </div>
+            </div>
+            {/* Stats */}
+            <div className="flex flex-col gap-3 flex-1">
+              <div>
+                <p className="text-[11px] font-medium text-[#80646f] mb-0.5">Days Completed</p>
+                <p className="text-[20px] font-bold text-[#2c3e50] leading-none">
+                  {userDays} <span className="text-[12px] font-medium text-[#80646f]">/ {totalDays} days</span>
+                </p>
+              </div>
+              <div>
+                <div className="relative h-[6px] w-full rounded-[100px] bg-[#E2E6E7] mb-1.5" style={{ overflow: "visible" }}>
+                  <div className="absolute inset-0 rounded-[100px]" style={{ overflow: "hidden" }}>
+                    <motion.div
+                      className="absolute left-0 top-0 bottom-0 rounded-[100px]"
+                      style={{ background: "linear-gradient(90deg, #4A90E2 0%, #A8D5BA 100%)" }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPct}%` }}
+                      transition={{ duration: 1.1, ease: "easeOut", delay: 0.2 }}
+                    />
+                  </div>
+                  <motion.div
+                    className="absolute top-1/2 rounded-full"
+                    style={{
+                      width: 10, height: 10,
+                      background: "#4A90E2",
+                      boxShadow: "0px 0px 6px 2px rgba(74,144,226,0.55)",
+                      right: `${100 - progressPct}%`,
+                      transform: "translateY(-50%) translateX(50%)",
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.9 }}
+                  />
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[10px] text-[#80646f]">Start</span>
+                  <span className="text-[10px] text-[#80646f]">Goal</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Compact Leaderboard / Ranking */}
+        {/* Today's Task Card */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="bg-white rounded-[16px] border border-[#e2e6e7] p-4 mb-6"
+          transition={{ duration: 0.3, delay: 0.08 }}
+          className="bg-white rounded-[16px] p-4"
+          style={{ border: "1px solid #E2E6E7", boxShadow: "0px 0px 12px 0px rgba(44,62,80,0.06)" }}
         >
-          <h4 className="text-[15px] font-bold text-[#2c3e50] mb-3">Leaderboard</h4>
-          {/* Podium */}
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {podium.map((u, idx) => (
-              <div key={u.name} className={`flex flex-col items-center justify-end rounded-[12px] p-2 ${idx===1? 'bg-[#E8F4FD]':'bg-[#ecf0f1]'} min-h-[90px] relative`}>
-                <div className="absolute top-1 left-1 text-[10px] font-bold text-[#4A90E2]">#{idx+1}</div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center text-white text-[12px] font-bold mb-1">{u.avatar || '👤'}</div>
-                <p className="text-[10px] font-semibold text-[#2c3e50] text-center truncate w-full">{u.name}</p>
-                <span className="text-[10px] font-bold text-[#F5A623]">{u.days}d</span>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-[14px] font-bold text-[#2c3e50]">Today's Task</h4>
+            {completedToday && (
+              <span
+                className="text-[11px] font-semibold px-2 py-0.5 rounded-[100px]"
+                style={{ background: "rgba(168,213,186,0.3)", color: "#2c3e50" }}
+              >
+                Done âœ…
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 mb-4">
+            {[
+              { emoji: "ðŸŒ±", text: "Spend 5 minutes on mindful breathing." },
+              { emoji: "ðŸ“", text: "Journal one positive thought." },
+              { emoji: "ðŸ’§", text: "Drink a glass of water after completing the above." },
+            ].map((task, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-[10px]"
+                style={{ background: "#f8fafc", border: "1px solid #E2E6E7" }}
+              >
+                <span className="text-[14px] flex-shrink-0">{task.emoji}</span>
+                <p className="text-[12px] text-[#2c3e50] leading-snug">{task.text}</p>
               </div>
             ))}
           </div>
+          <button
+            onClick={handleComplete}
+            className="w-full py-3 rounded-[100px] font-bold text-[14px] transition-all flex items-center justify-center"
+            style={
+              completedToday
+                ? { background: "rgba(168,213,186,0.25)", border: "1.5px solid #A8D5BA", color: "#2c3e50" }
+                : { background: "#4a90e2", color: "white", boxShadow: "0px 4px 12px rgba(74,144,226,0.35)" }
+            }
+          >
+            {completedToday ? "Logged for Today âœ…" : "Mark Today Complete"}
+          </button>
+        </motion.div>
+
+        {/* Leaderboard Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="bg-white rounded-[16px] p-4"
+          style={{ border: "1px solid #E2E6E7", boxShadow: "0px 0px 12px 0px rgba(44,62,80,0.06)" }}
+        >
+          <h4 className="text-[14px] font-bold text-[#2c3e50] mb-4">Leaderboard</h4>
+
+          {/* Podium â€” visual order: 2nd | 1st | 3rd */}
+          <div className="flex items-end justify-center gap-2 mb-4 px-2">
+            {podiumOrder.map((rankIdx) => {
+              const u = podium[rankIdx];
+              if (!u) return null;
+              const isFirst = rankIdx === 0;
+              const podiumHeights = [76, 56, 48];
+              return (
+                <div key={u.name} className="flex flex-col items-center gap-1 flex-1">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center font-bold relative"
+                    style={{
+                      background: isFirst
+                        ? "linear-gradient(135deg, #4A90E2, #A8D5BA)"
+                        : "linear-gradient(135deg, #d8dde2, #c4cacf)",
+                      color: "white",
+                      boxShadow: isFirst ? "0px 2px 8px rgba(74,144,226,0.4)" : "none",
+                      fontSize: isFirst ? "16px" : "14px",
+                    }}
+                  >
+                    {u.avatar || "ðŸ‘¤"}
+                  </div>
+                  <p className="text-[10px] font-semibold text-[#2c3e50] text-center truncate w-full px-1 leading-tight">{u.name}</p>
+                  <p className="text-[10px] font-bold" style={{ color: medalColors[rankIdx] }}>{u.days}d</p>
+                  <div
+                    className="w-full rounded-t-[8px] flex items-center justify-center"
+                    style={{
+                      height: podiumHeights[rankIdx],
+                      background: isFirst
+                        ? "linear-gradient(180deg, rgba(74,144,226,0.12) 0%, rgba(74,144,226,0.05) 100%)"
+                        : "rgba(236,240,241,0.7)",
+                      border: isFirst ? "1px solid rgba(74,144,226,0.18)" : "1px solid #E2E6E7",
+                      borderBottom: "none",
+                    }}
+                  >
+                    <span className="text-[13px] font-bold" style={{ color: medalColors[rankIdx] }}>
+                      {medalLabels[rankIdx]}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
           {/* Secondary ranks */}
-          <div className="space-y-2 mb-3">
+          <div className="flex flex-col gap-2">
             {secondary.map((u, idx) => (
-              <div key={u.name} className="flex items-center gap-3 bg-[#fcfcfc] border border-[#e2e6e7] rounded-[10px] p-2">
-                <span className="text-[11px] font-bold text-[#4A90E2] w-6 text-center">#{idx+4}</span>
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center text-white text-[11px] font-bold">{u.avatar || '👤'}</div>
-                <p className="text-[11px] font-semibold text-[#2c3e50] flex-1 truncate">{u.name}</p>
+              <div
+                key={u.name}
+                className="flex items-center gap-3 rounded-[10px] px-3 py-2.5"
+                style={{ background: "#f8fafc", border: "1px solid #E2E6E7" }}
+              >
+                <span className="text-[11px] font-bold text-[#4A90E2] w-6 text-center flex-shrink-0">#{idx + 4}</span>
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, #4A90E2, #A8D5BA)" }}
+                >
+                  {u.avatar || "ðŸ‘¤"}
+                </div>
+                <p className="text-[12px] font-semibold text-[#2c3e50] flex-1 truncate">{u.name}</p>
                 <span className="text-[11px] font-bold text-[#F5A623] whitespace-nowrap">{u.days}d</span>
               </div>
             ))}
           </div>
-          {/* Remaining collapsible */}
+
+          {/* Collapsible remaining */}
           {remaining.length > 0 && (
-            <div className="mb-2">
+            <div className="mt-2">
               <AnimatePresence>
                 {showAllRanks && remaining.map((u, idx) => (
                   <motion.div
                     key={u.name}
-                    initial={{ opacity: 0, y: 6 }}
+                    initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
+                    exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.15 }}
-                    className="flex items-center gap-3 bg-white border border-[#e2e6e7] rounded-[10px] p-2 mb-2"
+                    className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 mb-2"
+                    style={{ background: "#f8fafc", border: "1px solid #E2E6E7" }}
                   >
-                    <span className="text-[11px] font-bold text-[#4A90E2] w-6 text-center">#{idx+6}</span>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center text-white text-[11px] font-bold">{u.avatar || '👤'}</div>
-                    <p className="text-[11px] font-semibold text-[#2c3e50] flex-1 truncate">{u.name}</p>
+                    <span className="text-[11px] font-bold text-[#4A90E2] w-6 text-center flex-shrink-0">#{idx + 6}</span>
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+                      style={{ background: "linear-gradient(135deg, #4A90E2, #A8D5BA)" }}
+                    >
+                      {u.avatar || "ðŸ‘¤"}
+                    </div>
+                    <p className="text-[12px] font-semibold text-[#2c3e50] flex-1 truncate">{u.name}</p>
                     <span className="text-[11px] font-bold text-[#F5A623] whitespace-nowrap">{u.days}d</span>
                   </motion.div>
                 ))}
               </AnimatePresence>
               <button
                 onClick={() => setShowAllRanks(prev => !prev)}
-                className="w-full mt-1 py-2 rounded-[8px] bg-[#ecf0f1] hover:bg-[#E8F4FD] text-[12px] font-semibold text-[#2c3e50] transition-all"
+                className="w-full mt-1 py-2.5 rounded-[100px] text-[12px] font-semibold transition-all"
+                style={{ background: "rgba(74,144,226,0.08)", border: "1px solid rgba(74,144,226,0.15)", color: "#4A90E2" }}
               >
-                {showAllRanks ? 'Show Less' : `Show ${remaining.length} More`}
+                {showAllRanks ? "Show Less" : `Show ${remaining.length} More`}
               </button>
             </div>
           )}
         </motion.div>
 
-        {/* Community / Motivation (condensed) */}
+        {/* Community Card */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.15 }}
-          className="bg-white rounded-[16px] border border-[#e2e6e7] p-4 mb-6"
+          transition={{ duration: 0.3, delay: 0.13 }}
+          className="bg-white rounded-[16px] p-4"
+          style={{ border: "1px solid #E2E6E7", boxShadow: "0px 0px 12px 0px rgba(44,62,80,0.06)" }}
         >
-          <h4 className="text-[15px] font-bold text-[#2c3e50] mb-3">Community</h4>
-          <p className="text-[12px] text-[#2c3e50] leading-relaxed mb-2">{challenge.participants} participants active today.</p>
-          <p className="text-[12px] text-[#2c3e50] leading-relaxed mb-0">Share a win tomorrow—small public commitments can lift completion by 30%.</p>
+          <h4 className="text-[14px] font-bold text-[#2c3e50] mb-3">Community</h4>
+          <div
+            className="flex items-start gap-3 rounded-[12px] p-3"
+            style={{
+              background: "linear-gradient(135deg, rgba(74,144,226,0.06) 0%, rgba(168,213,186,0.08) 100%)",
+              border: "1px solid rgba(74,144,226,0.12)",
+            }}
+          >
+            <span className="text-[20px] flex-shrink-0">ðŸ†</span>
+            <div>
+              <p className="text-[13px] font-semibold text-[#2c3e50] mb-0.5">{challenge.participants} participants active today</p>
+              <p className="text-[11px] text-[#80646f] leading-relaxed">Share a win â€” small public commitments can lift completion by 30%.</p>
+            </div>
+          </div>
         </motion.div>
+
       </div>
     </div>
   );

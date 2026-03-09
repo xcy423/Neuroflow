@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <!--
+    NeuroFlow logo — faithfully recreated SVG
+    Z-order (back to front): sage-green, blue, orange, capsule ring
+  -->
+
+  <!-- Sage green swoosh (top, relatively thin, enters from left) -->
+  <path
+    d="M 14 58 C 55 44, 110 48, 162 56 C 110 65, 55 65, 14 63 Z"
+    fill="#8BBCA8"
+  />
+
+  <!-- Blue swoosh (bottom, largest, enters from far left) -->
+  <path
+    d="M -4 76 C 48 62, 112 66, 162 74 C 112 86, 48 88, -4 84 Z"
+    fill="#4A8FD4"
+  />
+
+  <!-- Orange swoosh (middle, shorter, starts near capsule centre) -->
+  <path
+    d="M 48 67 C 82 58, 124 60, 162 67 C 124 73, 82 75, 48 73 Z"
+    fill="#E89828"
+  />
+
+  <!-- Capsule ring (tall narrow pill, front-most layer, fill=none so swooshes show through) -->
+  <rect
+    x="46" y="18" width="28" height="112" rx="14"
+    fill="none" stroke="#2C3E50" stroke-width="11"
+  />
+</svg>

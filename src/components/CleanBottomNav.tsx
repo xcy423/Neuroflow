@@ -1,9 +1,9 @@
 import { motion } from "motion/react";
-import { Home, BookOpen, Trophy, User, Plus } from "lucide-react";
+import { Home, CalendarDays, Trophy, User, Plus } from "lucide-react";
 
 interface CleanBottomNavProps {
-  currentScreen: "home" | "courses" | "challenges" | "sanctuary" | "profile";
-  onNavigate: (screen: "home" | "courses" | "challenges" | "sanctuary" | "profile") => void;
+  currentScreen: "home" | "sessions" | "challenges" | "sanctuary" | "profile";
+  onNavigate: (screen: "home" | "sessions" | "challenges" | "sanctuary" | "profile") => void;
   onPlusClick: () => void;
   showPlusButton?: boolean;
 }
@@ -16,7 +16,7 @@ export default function CleanBottomNav({
 }: CleanBottomNavProps) {
   const navItems = [
     { id: "home" as const, label: "Home", icon: Home },
-    { id: "courses" as const, label: "Courses", icon: BookOpen },
+    { id: "sessions" as const, label: "Sessions", icon: CalendarDays },
     { id: "challenges" as const, label: "Challenges", icon: Trophy },
     { id: "profile" as const, label: "Profile", icon: User },
   ];

@@ -1,7 +1,19 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { Check } from "lucide-react";
+import logoSvg from "../assets/neuroflow-logo.png";
 
-export default function AnimatedHomeHeader() {
+interface AnimatedHomeHeaderProps {
+  editMode?: boolean;
+  onEditClick?: () => void;
+  onSaveClick?: () => void;
+}
+
+export default function AnimatedHomeHeader({
+  editMode = false,
+  onEditClick,
+  onSaveClick,
+}: AnimatedHomeHeaderProps) {
   const [key, setKey] = useState(0);
 
   // Re-trigger animation when component mounts (e.g., returning to Home page)
@@ -37,44 +49,109 @@ export default function AnimatedHomeHeader() {
   };
 
   return (
-    <div key={key} className="w-full bg-gradient-to-b from-[#4A90E2]/5 to-transparent px-6 pt-6 pb-4">
-      <div className="flex items-center gap-4">
-        {/* Logo - Fades in with subtle scale */}
-        <motion.div
-          variants={logoVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex-shrink-0"
-        >
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4A90E2] to-[#A8D5BA] flex items-center justify-center shadow-lg">
-            <span className="text-2xl">🧠</span>
-          </div>
-        </motion.div>
+    <div key={key} className="w-full bg-gradient-to-b from-[#4A90E2]/5 to-transparent pt-6 pb-4" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
+      {/* Outer row: [logo + text frame] spaced apart from [edit button] */}
+      <div className="flex items-center justify-between">
 
-        {/* App Name & Slogan Container */}
-        <div className="flex-1 overflow-hidden">
-          {/* App Name - Fades in with logo */}
-          <motion.h1
+        {/* LEFT FRAME: logo + title/slogan */}
+        <div className="flex items-center gap-3">
+          {/* Logo */}
+          <motion.div
             variants={logoVariants}
             initial="hidden"
             animate="visible"
-            className="text-[24px] font-bold text-[#2c3e50] mb-1"
-            style={{ fontFamily: "Poppins, sans-serif" }}
+            className="flex-shrink-0"
           >
-            NeuroFlow
-          </motion.h1>
+            <img
+              src={logoSvg}
+              alt="NeuroFlow logo"
+              style={{ width: 52, height: 52, objectFit: "contain" }}
+            />
+          </motion.div>
 
-          {/* Slogan - Fades in AND slides right after logo */}
-          <motion.p
-            variants={sloganVariants}
+          {/* Title + slogan stacked */}
+          <div className="flex flex-col justify-center">
+            <motion.h1
+              variants={logoVariants}
+              initial="hidden"
+              animate="visible"
+              className="text-[24px] font-bold text-[#2c3e50] leading-tight"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
+              NeuroFlow
+            </motion.h1>
+            <motion.p
+              variants={sloganVariants}
+              initial="hidden"
+              animate="visible"
+              className="text-[12px] text-[#868686] italic leading-tight"
+              style={{ fontFamily: "Lora, serif" }}
+            >
+              Caring for your mind, one step at a time
+            </motion.p>
+          </div>
+        </div>
+        {/* END LEFT FRAME */}
+
+        {/* RIGHT: Edit / Save button — 44×44 */}
+        {editMode ? (
+          <motion.button
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={onSaveClick}
+            style={{
+              display: "flex",
+              width: 44,
+              height: 44,
+              padding: 5,
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 10,
+              aspectRatio: "1/1",
+              flexShrink: 0,
+              borderRadius: "50%",
+              background: "#A8D5BA",
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0px 3px 0px 0px #dfdfdf",
+            }}
+          >
+            <Check size={18} color="white" />
+          </motion.button>
+        ) : (
+          <motion.button
+            variants={logoVariants}
             initial="hidden"
             animate="visible"
-            className="text-[13px] text-[#868686] italic"
-            style={{ fontFamily: "Lora, serif" }}
+            whileTap={{ scale: 0.9 }}
+            onClick={onEditClick}
+            style={{
+              display: "flex",
+              width: 44,
+              height: 44,
+              padding: 5,
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 10,
+              aspectRatio: "1/1",
+              flexShrink: 0,
+              borderRadius: "50%",
+              background: "white",
+              border: "1px solid #E2E6E7",
+              cursor: "pointer",
+              boxShadow: "0px 3px 0px 0px #dfdfdf",
+            }}
           >
-            Caring for your mind, one step at a time
-          </motion.p>
-        </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#2c3e50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.button>
+        )}
+
       </div>
     </div>
   );

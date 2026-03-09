@@ -12,22 +12,26 @@ import SanctuaryScreen from "./components/SanctuaryScreen";
 import EnhancedSanctuaryScreen from "./components/EnhancedSanctuaryScreen";
 import ProfileScreen from "./components/ProfileScreen";
 import MoodInputModal from "./components/MoodInputModal";
+import HarmonyCardModal from "./components/HarmonyCardModal";
+import { handleSubmitMoodLog, type CardType } from "./data/harmonyCards";
 import WidgetCustomizer from "./components/WidgetCustomizer";
 import WidgetDetailScreen from "./components/WidgetDetailScreen";
 import StreakHistoryModal from "./components/StreakHistoryModal";
 import CleanBottomNav from "./components/CleanBottomNav";
-import CleanStickyMascot from "./components/CleanStickyMascot";
+import HarmonyBubble from "./components/HarmonyBubble";
+import HomeChatScreen from "./components/HomeChatScreen";
 import DynamicIslandAnnotation from "./components/DynamicIslandAnnotation";
 import { useSwipeNavigation } from "./hooks/useSwipeNavigation";
 
 type Screen =
   | "home"
-  | "courses"
+  | "sessions"
   | "challenges"
   | "sanctuary"
   | "profile"
   | "widgetDetail"
-  | "challengeSession";
+  | "challengeSession"
+  | "chat";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] =
@@ -40,11 +44,14 @@ export default function App() {
     useState(false);
   const [showStreakHistory, setShowStreakHistory] =
     useState(false);
+  const [harmonyCardType, setHarmonyCardType] = useState<CardType>("spark");
+  const [showHarmonyCard, setShowHarmonyCard] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+  const [chatInitialMessage, setChatInitialMessage] = useState<string | undefined>(undefined);
 
   // Define page order for swipe navigation
-  const pageOrder: Screen[] = ["home", "courses", "challenges", "profile"];
+  const pageOrder: Screen[] = ["home", "sessions", "challenges", "profile"];
 
   const [userSettings, setUserSettings] = useState({
     showMascot: true,
@@ -106,11 +113,21 @@ export default function App() {
     }
   }, []);
 
-  const handleMoodSubmit = (mood: string, note?: string) => {
+  const handleMoodSubmit = (mood: string, drivers?: string[], note?: string) => {
     setMoodLogCount((prev) => prev + 1);
     setStreakDays((prev) => prev + 1);
+
+    // Determine card type immediately (pure computation, no side-effects)
+    const cardType = handleSubmitMoodLog(mood, drivers ?? [], note ?? "");
+    setHarmonyCardType(cardType);
+
+    // Close the mood modal first, then show the Harmony Card after it has
+    // finished its exit animation (~300 ms) so the two modals never overlap.
     setShowMoodModal(false);
-    toast.success("Mood logged successfully! 🌟");
+    setTimeout(() => {
+      setShowHarmonyCard(true);
+      toast.success("Mood logged! Your Harmony Card is ready ✨");
+    }, 320);
 
     if (isFirstTimeUser) {
       localStorage.setItem("hasVisited", "true");
@@ -131,7 +148,7 @@ export default function App() {
   const handleNavigate = (
     screen:
       | "home"
-      | "courses"
+      | "sessions"
       | "challenges"
       | "sanctuary"
       | "profile",
@@ -188,12 +205,13 @@ export default function App() {
   };
 
   const handleMascotClick = () => {
-    setCurrentScreen("sanctuary");
+    setCurrentScreen("chat");
   };
 
   const handleBackToHome = () => {
     setCurrentScreen("home");
     setSelectedWidget(null);
+    setChatInitialMessage(undefined);
   };
 
   const renderScreen = () => {
@@ -213,7 +231,7 @@ export default function App() {
             onStreakClick={handleStreakClick}
           />
         );
-      case "courses":
+      case "sessions":
         return <EnhancedCoursesScreen onNavigateHome={handleBackToHome} />;
       case "challenges":
         return (
@@ -249,14 +267,33 @@ export default function App() {
         ) : null;
       case "sanctuary":
         return (
-          <EnhancedSanctuaryScreen
+          <HomeChatScreen
+            streakDays={streakDays}
             completedChallenges={completedChallenges}
-            wellnessScore={wellnessScore}
-            onClose={handleBackToHome}
+            totalChallenges={12}
+            completedCourses={4}
+            totalCourses={10}
+            mood="Good"
+            onBack={handleBackToHome}
+            onNavigate={(screen) => handleNavigate(screen)}
           />
         );
       case "profile":
         return <ProfileScreen onNavigateHome={handleBackToHome} />;
+      case "chat":
+        return (
+          <HomeChatScreen
+            streakDays={streakDays}
+            completedChallenges={completedChallenges}
+            totalChallenges={12}
+            completedCourses={4}
+            totalCourses={10}
+            mood="Good"
+            initialMessage={chatInitialMessage}
+            onBack={handleBackToHome}
+            onNavigate={(screen) => handleNavigate(screen)}
+          />
+        );
       case "widgetDetail":
         return selectedWidget ? (
           <WidgetDetailScreen
@@ -288,18 +325,12 @@ export default function App() {
     }
   };
 
-  // Show bottom nav on all main pages except sanctuary and widget detail, and hide when create challenge modal is open
-  const showBottomNav = ["home", "courses", "challenges", "profile"].includes(currentScreen) && !showCreateChallengeModal;
-  const showMascot =
-    userSettings.showMascot &&
-    currentScreen !== "sanctuary" &&
-    currentScreen !== "widgetDetail";
+  // Show bottom nav on all main pages except sanctuary, chat, and widget detail, and hide when create challenge modal is open
+  const showBottomNav = ["home", "sessions", "challenges", "profile"].includes(currentScreen) && !showCreateChallengeModal;
 
   // compute extra bottom padding so scroll area extends past fixed overlays
-  // Trimmed values to reduce heavy bottom spacing while keeping elements clear
-  const extraBottomBase = showBottomNav ? 180 : 120; // enough for rounded nav + raised plus
-  const extraBottomMascot = showMascot ? 80 : 0; // some clearance when mascot is visible
-  const paddingBottomValue = `calc(env(safe-area-inset-bottom, 0px) + ${extraBottomBase + extraBottomMascot}px)`;
+  const extraBottomBase = showBottomNav ? 200 : 120; // 200 = nav (70) + bubble (52) + gaps
+  const paddingBottomValue = `calc(env(safe-area-inset-bottom, 0px) + ${extraBottomBase}px)`;
 
   // Animation variants for swipe transitions - NO FADE for better UX
   const pageVariants = {
@@ -323,8 +354,17 @@ export default function App() {
   return (
     <div className="relative w-full min-h-screen bg-[#fcfcfc] flex items-center justify-center">
       {/* Main App Container - Responsive with iPhone Dynamic Island Support */}
+      {/* harmony-dimmed is added when the Harmony Card is open — CSS filter
+          dims every pixel in this subtree (including Framer Motion stacking
+          contexts) without any z-index conflicts. */}
       <div
-        className="relative w-full max-w-[440px] min-w-[320px] h-screen bg-[#fcfcfc] overflow-hidden mx-auto shadow-2xl"
+        className={`relative w-full max-w-[440px] min-w-[320px] h-screen bg-[#fcfcfc] overflow-hidden mx-auto shadow-2xl${
+            showHarmonyCard
+              ? " harmony-dimmed"
+              : (showMoodModal || showWidgetCustomizer || showStreakHistory || showCreateChallengeModal)
+              ? " modal-dimmed"
+              : ""
+          }`}
         style={{
           // Support for iPhone Safe Areas and Dynamic Island
           paddingTop: "env(safe-area-inset-top, 0px)",
@@ -358,25 +398,27 @@ export default function App() {
           </AnimatePresence>
         </div>
 
+        {/* Ask Harmony floating bubble — visible on all main nav screens */}
+        {showBottomNav && (
+          <HarmonyBubble
+            onSend={(text) => {
+              setChatInitialMessage(text);
+              setCurrentScreen("chat");
+            }}
+          />
+        )}
+
         {/* Bottom Navigation - ONLY ONE INSTANCE */}
         {showBottomNav && (
           <CleanBottomNav
-            currentScreen={(["home", "courses", "challenges", "profile"].includes(currentScreen) ? currentScreen : "home") as "home" | "courses" | "challenges" | "profile"}
+            currentScreen={(["home", "sessions", "challenges", "profile"].includes(currentScreen) ? currentScreen : "home") as "home" | "sessions" | "challenges" | "profile"}
             onNavigate={handleNavigate}
             onPlusClick={handlePlusClick}
             showPlusButton={userSettings.showPlusButton}
           />
         )}
 
-        {/* Sticky Mascot - Non-overlapping */}
-        {showMascot && (
-          <CleanStickyMascot
-            currentScreen={( ["home","courses","challenges","profile"].includes(currentScreen) ? currentScreen : "challenges") as "home"|"courses"|"challenges"|"profile"}
-            moodLogCount={moodLogCount}
-            wellnessScore={wellnessScore}
-            onMascotClick={handleMascotClick}
-          />
-        )}
+
 
         {/* Modals */}
         <MoodInputModal
@@ -399,6 +441,13 @@ export default function App() {
           onClose={() => setShowStreakHistory(false)}
           streakDays={streakDays}
           moodLogCount={moodLogCount}
+        />
+
+        {/* Harmony Card — shown after mood log submission */}
+        <HarmonyCardModal
+          isOpen={showHarmonyCard}
+          cardType={harmonyCardType}
+          onClose={() => setShowHarmonyCard(false)}
         />
 
         {/* Toast Notifications */}
